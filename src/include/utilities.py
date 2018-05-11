@@ -67,6 +67,9 @@ class IP_Package():
         pass
 
 
-def ip_to_bytes(ip : str):
+def str_ip_to_bytes(ip : str):
     """ 将ip转成比特 """
+
+def bytes_ip_to_str(bytes_ip : bytes):
+    """ 将比特形式的ip转成字符串形式，形如 '192.168.3.5' """
         
