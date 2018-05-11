@@ -56,7 +56,7 @@ class Route():
         logger.debug(self.previous_node)
 
         while True:
-            recv_data = link_layer.recieve()
+            recv_data = link_layer.receive()
             if recv_data == None:
                 continue
             ip_package = IP_Package.bytes_package_to_objdect(recv_data)
@@ -80,7 +80,6 @@ class Route():
         raise NotImplementedError()
 
     def test_send(self, s):
-        logger.info("int test_send")
         pkg = IP_Package('8.8.1.2', '8.8.1.3', 24, s.encode('ascii'))
         link_layer.send(pkg.to_bytes())
     

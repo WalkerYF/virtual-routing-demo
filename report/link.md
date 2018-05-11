@@ -34,7 +34,7 @@ DataLinkLayer.send(ip_pkg: bytes) -> error_code : int
 链路层上的多个端口，都可能会收到IP包，链路层的工作是将这些IP包向上发送至网络层，由网络层进行解析。
 
 ```py
-DataLinkLayer.recvive()  -> ip_pkb : bytes
+DataLinkLayer.receive()  -> ip_pkb : bytes
 # 阻塞式收取IP包，会收到一个bytes类型的IP包
 ```
 
@@ -54,7 +54,8 @@ DataLinkLayer.recvive()  -> ip_pkb : bytes
 |-|-|
 |0-15|/|
 |16-31|数据包长度|
-|32-63|/|
+|32-47|/|
+|48-63|子网比特数|
 |64-95|/|
 |96-127|源IP地址|
 |128-159|目的IP地址|
