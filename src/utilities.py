@@ -69,7 +69,16 @@ class IP_Package():
 
 def str_ip_to_bytes(ip : str):
     """ 将ip转成比特 """
+    num_list = ip.split('.')
+    binary_list = [int(i,2) for i in num_list]
+    print(binary_list)
+
 
 def bytes_ip_to_str(bytes_ip : bytes):
     """ 将比特形式的ip转成字符串形式，形如 '192.168.3.5' """
-        
+
+
+if __name__ == '__main__':
+    test_ip1 = '192.168.2.4'
+    test_ip2 = '12.168.23.45'
+    print(str_ip_to_bytes(test_ip1))
