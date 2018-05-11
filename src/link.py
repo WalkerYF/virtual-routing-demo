@@ -5,6 +5,7 @@ import utilities
 import threading
 import logging
 from include import rdt_socket
+from utilities import get_subnet
 logging.basicConfig(
     # filename='../../log/client.{}.log'.format(__name__),
     format='[%(asctime)s - %(name)s - %(levelname)s] : \n%(message)s\n',
@@ -44,12 +45,8 @@ class Host(threading.Thread):
             logger.debug("Route {} recv {}".format(self.vip, s))
             #TODO: not finished
 
-    @staticmethod
-    def getSubnetPrefix(host):
-        # TODO:不管netmask是多少，目前就是当netmask是24...
-        pos = host.vip.rfind('.')
-        return host.vip[0:pos]
-
+    def getSubnetPrefix(self):
+        return get_subnet(self.vip, self.netmask)
 class Subnet():
     """ FIXME:子网内的主机列表，多台路由器之间内存级共享，需要改 """
     def __init__(self, prefix):
@@ -67,7 +64,7 @@ class DataLinkLayer():
     def host_register(self, host):
         """ 被网络层调用"""
         # 根据host的vip和netmask，能够确定它的子网编号
-        subnet_prefix = Host.getSubnetPrefix(host) #TODO: 根据vip和netmask判断子网编号
+        subnet_prefix = host.getSubnetPrefix() #TODO: 根据vip和netmask判断子网编号
         # 如果这个子网现在不存在, 说明这是该子网第一台主机，因此新建这个子网
         print(self.subnets)
         if not subnet_prefix in [i.prefix for i in self.subnets]: 
@@ -105,8 +102,13 @@ class DataLinkLayer():
         注意：
             1. dest这个参数似乎没用上
         """
-        pos = src[0].rfind('.')
-        subnet_prefix = src[0][0:pos]
+        #FIXME: notice, change how to calculate subnet_prefix
+        ip1, nm1 = src
+        _, nm2 = dest
+        if nm1 != nm2:
+            logger.error('{} and {} not in same subnet'.format(str(nm1), str(nm2)))
+            raise Exception("{} and {} not in same subnet".format(nm1, nm2))
+        subnet_prefix = get_subnet(ip1, nm1)
         for subnet in self.subnets:
             if subnet.prefix == subnet_prefix:
                 for host in subnet.hosts:
