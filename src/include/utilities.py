@@ -4,6 +4,7 @@ utilities functions here
 import json
 import socket
 import struct
+from bitarray import bitarray
 
 def objEncode(obj):
     """ obj，返回binary对象 """
@@ -49,36 +50,89 @@ def get_subnet(ip:str, netmask:int):
 
 
 class IP_Package():
+    """ 
+    提供对IP package相关的工具函数
+    方便的让IP package从字符串和二进制之间互转
+    """
     def __init__(self, src_ip : str, dest_ip : str, data : bytes):
         self.src_ip = src_ip
         self.dest_ip = dest_ip
         self.data = data
+        self.data_bytes_length = len(self.data)
 
-    def to_bytes(self):
+    def to_bytes(self) -> bytes:
         """ 将自己转成比特形式返回 """
-        pass
+        binary_ip_pkg = struct.pack(
+            '!HHII',
+            0,self.data_bytes_length,
+            0,
+            0
+        )
+        print(binary_ip_pkg)
+        binary_ip_pkg += str_ip_to_bytes(self.src_ip)
+        binary_ip_pkg += str_ip_to_bytes(self.dest_ip)
+        binary_ip_pkg += self.data
+        return binary_ip_pkg
 
+    def __str__(self):
+        """ 给print函数调用 """
+        display_str = ''
+        display_str += 'src_ip : {}\n'.format(self.src_ip)
+        display_str += 'dest_ip : {}\n'.format(self.dest_ip)
+        display_str += 'data : {}\n'.format(str(self.data))
+        return display_str
+    
+    def __repr__(self):
+        return self.__str__()
+        
     @staticmethod
     def bytes_package_to_objdect(ip_pkg : bytes):
-        pass
-
-    @staticmethod
-    def object_package_to_bytes(ip_pkb_object : 'IP_Package'):
-        pass
-
-
-def str_ip_to_bytes(ip : str):
-    """ 将ip转成比特 """
-    num_list = ip.split('.')
-    binary_list = [int(i,2) for i in num_list]
-    print(binary_list)
+        """ 将一个bytes格式的IP包转成易操作的对象 """
+        src_ip = bytes_ip_to_str(ip_pkg[12:16])
+        dest_ip = bytes_ip_to_str(ip_pkg[16:20])
+        data = ip_pkg[20:]
+        return IP_Package(src_ip, dest_ip, data)
 
 
-def bytes_ip_to_str(bytes_ip : bytes):
+def str_ip_to_bytes(ip : str) -> bytes:
+    """ 将ip转成32比特的二进制对象 """
+    # 将数字从字符形式的ip地址中抽出来
+    num_list =[int(i) for i in ip.split('.')]
+    # 将数字转成二进制样子的字符串
+    binary_list = [format(i, '08b') for i in num_list]
+    # 连接字符串
+    binary_str_ip = ''.join(binary_list)
+    # 转成二进制
+    return bitarray(binary_str_ip).tobytes()
+
+
+def bytes_ip_to_str(bytes_ip : bytes) -> str:
     """ 将比特形式的ip转成字符串形式，形如 '192.168.3.5' """
-
+    ip_num_list = struct.unpack('!BBBB', bytes_ip)
+    str_ip = ''
+    # 首次循环标志，如果不是首次循环的话就加一个'.'
+    first_flag = 1
+    for i in range(0,4):
+        if(1-first_flag):
+            str_ip += '.'
+        str_ip += str(ip_num_list[i])
+        first_flag = 0
+    return str_ip
+        
 
 if __name__ == '__main__':
     test_ip1 = '192.168.2.4'
-    test_ip2 = '12.168.23.45'
+    test_ip2 = '192.168.2.56'
     print(str_ip_to_bytes(test_ip1))
+    test_bytes1_ip = str_ip_to_bytes(test_ip1)
+    print(bytes_ip_to_str(test_bytes1_ip))
+    test_ip_pkg = IP_Package(test_ip1, test_ip2, b'safasdasfd')
+    print(test_ip_pkg)
+
+
+    test_binary_ip_pkg = test_ip_pkg.to_bytes()
+    print(test_binary_ip_pkg)
+
+    test_after_ip_pkg = IP_Package.bytes_package_to_objdect(test_binary_ip_pkg)
+    print(test_after_ip_pkg)
+
