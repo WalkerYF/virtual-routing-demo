@@ -56,8 +56,24 @@ class Route():
         logger.debug(self.previous_node)
 
         while True:
-            # never return
-            #TODO: here
+            recv_data = link_layer.recieve()
+            if recv_data == None:
+                continue
+            ip_package = IP_Package.bytes_package_to_objdect(recv_data)
+            src_ip = ip_package.src_ip
+            dst_ip = ip_package.dest_ip
+            netmask = ip_package.net_mask
+            #TODO: 判断是自己要了还是发给别人
+            #TODO: 
+            send_ip_package = IP_Package(
+                src_ip,
+                ,0# TODO: dst ip here,
+                netmask,
+                b""
+            )
+            link_layer.send(send_ip_package.to_bytes())
+
+
 
     def route_table_init(self):
         # TODO:使用接口，初始化路由表

@@ -188,7 +188,7 @@ class DataLinkLayer():
         if send_OK == False:
             return -1
 
-    def recvive(self):
+    def recieve(self):
         if link_buf.empty():
             logger.debug('The link buf queue is empty.')
             return None
