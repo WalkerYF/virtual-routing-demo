@@ -1,11 +1,10 @@
 import socket
 import json
 import config
-import utilities
 import threading
 import logging
 from include import rdt_socket
-from utilities import get_subnet
+from include.utilities import get_subnet
 logging.basicConfig(
     # filename='../../log/client.{}.log'.format(__name__),
     format='[%(asctime)s - %(name)s - %(levelname)s] : \n%(message)s\n',
@@ -102,7 +101,6 @@ class DataLinkLayer():
         注意：
             1. dest这个参数似乎没用上
         """
-        #FIXME: notice, change how to calculate subnet_prefix
         ip1, nm1 = src
         _, nm2 = dest
         if nm1 != nm2:

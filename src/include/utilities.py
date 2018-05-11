@@ -63,7 +63,7 @@ class IP_Package():
         pass
 
     @staticmethod
-    def object_package_to_bytes(ip_pkb_object : IP_Package):
+    def object_package_to_bytes(ip_pkb_object : 'IP_Package'):
         pass
 
 
