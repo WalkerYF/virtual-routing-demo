@@ -86,7 +86,7 @@ class IP_Package():
         return self.__str__()
         
     @staticmethod
-    def bytes_package_to_objdect(ip_pkg : bytes):
+    def bytes_package_to_objdect(ip_pkg : bytes) -> 'IP_Package':
         """ 将一个bytes格式的IP包转成易操作的对象 """
         src_ip = bytes_ip_to_str(ip_pkg[12:16])
         dest_ip = bytes_ip_to_str(ip_pkg[16:20])

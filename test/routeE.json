@@ -1,5 +1,6 @@
 {
     "name": "E", 
+    "index": 4,
     "interfaces": [
         {
             "vip": "8.8.1.3",

@@ -19,6 +19,8 @@ def SPFA(graph, src):
     while not q.empty():
         node = q.get()
         for destination, weight in enumerate(graph[node]):
+            if weight < 0:
+                break
             if min_distance[destination] > min_distance[node] + weight:
                 min_distance[destination] = min_distance[node] + weight
                 q.put(destination)

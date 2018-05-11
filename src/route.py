@@ -9,6 +9,8 @@ import sys
 import logging
 import unittest
 import pdb
+import pickle
+from include import shortestPath
 
 logging.basicConfig(
     # filename='../../log/client.{}.log'.format(__name__),
@@ -21,19 +23,28 @@ logger.setLevel(logging.DEBUG)
 # using Interface = Host;
 Interface = link.Host
 
-link_layer = link.DataLinkLayer()
 
+link_layer = link.DataLinkLayer() 
 class Route():
     def __init__(self, config_file):
         config = json.load(config_file)
         self.name = config['name']
         self.interfaces = config['interfaces']
+        self.index = config['index']
         self.route_table = {}
         for interface in self.interfaces:
             link_layer.host_register(link.Host(
                 (interface['vip'], interface['netmask']),
                 (interface['pip'],interface['port'])
             ))
+
+        f = open('matrix_topo.dump', 'rb')
+        graph = pickle.load(f)
+        f.close()
+
+        print(graph)
+        self.shortestPath = shortestPath.SPFA(graph, self.index)
+        print(self.shortestPath)
 
         # TODO:读取配置文件，将接口状态写入
         # 此时应该建立连接，获取用于模拟物理连接的socket
