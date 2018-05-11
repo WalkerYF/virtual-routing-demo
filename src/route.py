@@ -31,6 +31,7 @@ class Route():
         config = json.load(config_file)
         self.name = config['name']
         self.interfaces = []
+        self.index2ip = {}
         for intf in config['interfaces']:
             new_interface = Interface(
                 self.name,
@@ -41,6 +42,7 @@ class Route():
             )
             self.interfaces.append(new_interface)
             link_layer.host_register(new_interface) # host and interface are just two names for the same thing
+            self.index2ip[intf['counter_index']] = intf['counter_ip']
         logger.debug(self.interfaces)
         self.index = config['index']
         self.route_table = {}
@@ -54,6 +56,7 @@ class Route():
         self.shortestPath, self.previous_node = shortestPath.SPFA(graph, self.index)
         logger.debug(self.shortestPath)
         logger.debug(self.previous_node)
+        logger.debug(self.index2ip)
 
         while True:
             recv_data = link_layer.receive()
@@ -65,9 +68,10 @@ class Route():
             netmask = ip_package.net_mask
             #TODO: 判断是自己要了还是发给别人
             #TODO: 
+            #FIXME: error
             send_ip_package = IP_Package(
                 src_ip,
-                ,0# TODO: dst ip here,
+                dst_ip,# TODO: dst ip here, start here
                 netmask,
                 b""
             )
