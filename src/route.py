@@ -23,5 +23,5 @@ class Route():
     def route_table_init(self):
         # TODO:使用接口，初始化路由表
     
-    def data_link_layer(ip_package):
+    def data_link_layer(ip_package, next_hop_ip):
         # TODO:将一个ip包扔到这个函数，然后就会根据最长匹配原则，选择一个端口发送。
