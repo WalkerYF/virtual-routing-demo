@@ -54,21 +54,22 @@ class IP_Package():
     提供对IP package相关的工具函数
     方便的让IP package从字符串和二进制之间互转
     """
-    def __init__(self, src_ip : str, dest_ip : str, data : bytes):
+    def __init__(self, src_ip : str, dest_ip : str, net_mask : int,  data : bytes):
         self.src_ip = src_ip
         self.dest_ip = dest_ip
         self.data = data
+        self.net_mask = net_mask
         self.data_bytes_length = len(self.data)
 
     def to_bytes(self) -> bytes:
         """ 将自己转成比特形式返回 """
         binary_ip_pkg = struct.pack(
-            '!HHII',
+            '!HHIHH',
             0,self.data_bytes_length,
             0,
-            0
+            0,self.net_mask
         )
-        print(binary_ip_pkg)
+        # print(binary_ip_pkg)
         binary_ip_pkg += str_ip_to_bytes(self.src_ip)
         binary_ip_pkg += str_ip_to_bytes(self.dest_ip)
         binary_ip_pkg += self.data
@@ -77,6 +78,7 @@ class IP_Package():
     def __str__(self):
         """ 给print函数调用 """
         display_str = ''
+        display_str = 'net_mask : {}\n'.format(self.net_mask)
         display_str += 'src_ip : {}\n'.format(self.src_ip)
         display_str += 'dest_ip : {}\n'.format(self.dest_ip)
         display_str += 'data : {}\n'.format(str(self.data))
@@ -88,10 +90,11 @@ class IP_Package():
     @staticmethod
     def bytes_package_to_objdect(ip_pkg : bytes) -> 'IP_Package':
         """ 将一个bytes格式的IP包转成易操作的对象 """
+        net_mask = struct.unpack_from('!H', ip_pkg, 10)[0]
         src_ip = bytes_ip_to_str(ip_pkg[12:16])
         dest_ip = bytes_ip_to_str(ip_pkg[16:20])
         data = ip_pkg[20:]
-        return IP_Package(src_ip, dest_ip, data)
+        return IP_Package(src_ip, dest_ip, net_mask, data)
 
 
 def str_ip_to_bytes(ip : str) -> bytes:
@@ -126,7 +129,7 @@ if __name__ == '__main__':
     print(str_ip_to_bytes(test_ip1))
     test_bytes1_ip = str_ip_to_bytes(test_ip1)
     print(bytes_ip_to_str(test_bytes1_ip))
-    test_ip_pkg = IP_Package(test_ip1, test_ip2, b'safasdasfd')
+    test_ip_pkg = IP_Package(test_ip1, test_ip2, 24, b'safasdasfd')
     print(test_ip_pkg)
 
 
