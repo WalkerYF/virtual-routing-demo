@@ -63,7 +63,6 @@ class Route():
         raise NotImplementedError()
 
     def test_send(self, s):
-        logger.info("int test_send")
         pkg = IP_Package('8.8.1.2', '8.8.1.3', 24, s.encode('ascii'))
         link_layer.send(pkg.to_bytes())
     
