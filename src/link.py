@@ -3,8 +3,10 @@ import json
 import config
 import threading
 import logging
+import queue
 from include import rdt_socket
 from include.utilities import get_subnet
+from include.utilities import IP_Package
 logging.basicConfig(
     # filename='../../log/client.{}.log'.format(__name__),
     format='[%(asctime)s - %(name)s - %(levelname)s] : \n%(message)s\n',
@@ -12,6 +14,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
+link_buf = queue.Queue(0)
+
 class Host(threading.Thread):
     def __init__(self, name, vip_netmask, pip_port, counter_vip_netmask, counter_pip_port):
         threading.Thread.__init__(self)
@@ -43,8 +48,11 @@ class Host(threading.Thread):
         rdt_s = rdt_socket.rdt_socket(client_socket)
         while True:
             data = rdt_s.recvBytes()
-            s = str(data)
-            logger.debug("Route {} recv {}".format(self.vip, s))
+            pkg = IP_Package.bytes_package_to_objdect(data)
+            link_buf.put(pkg)
+            logger.info('--------------------------------------------------')
+            logger.debug("Link layer pkg received\n{}".format(pkg))
+            logger.info('--------------------------------------------------')
             #TODO: not finished
 
     def getSubnetPrefix(self):
@@ -61,6 +69,7 @@ class HostManager(threading.Thread):
         self.hosts = hosts
         self.subnets = subnets
         for host in self.hosts:
+            # TODO should use utilities.get_subnet
             subnet_prefix = Host.getSubnetPrefix(host)
             new_subnet = Subnet(subnet_prefix)
             # 新的子网中加入这台主机
@@ -147,7 +156,7 @@ class DataLinkLayer():
         #                 # 注意：该语句依赖于一个子网里只有两台主机
         #                 _host.counter_socket.connect(subnet.hosts[1 - idx].pip_port)
 
-    def send(self, src, dest, ip_pkg):
+    def send(self, ip_pkg:bytes) -> int:
         """
         实现假设：
             1. src这一台host自带的socket能够直接发送到dest
@@ -157,35 +166,31 @@ class DataLinkLayer():
         注意：
             1. dest这个参数似乎没用上
         """
-        ip1, nm1 = src
-        _, nm2 = dest
-        if nm1 != nm2:
-            logger.error('{} and {} not in same subnet'.format(str(nm1), str(nm2)))
-            raise Exception("{} and {} not in same subnet".format(nm1, nm2))
-        subnet_prefix = get_subnet(ip1, nm1)
+        pkg = IP_Package.bytes_package_to_objdect(ip_pkg)
+        ip1 = pkg.src_ip
+        nm = pkg.net_mask
+    # def send(self, src, dest, ip_pkg):
+    #     ip1, nm1 = src
+    #     _, nm2 = dest
+    #     if nm1 != nm2:
+    #         logger.error('{} and {} not in same subnet'.format(str(nm1), str(nm2)))
+    #         raise Exception("{} and {} not in same subnet".format(nm1, nm2))
+        subnet_prefix = get_subnet(ip1, nm)
+        send_OK = False
         for subnet in self.subnets:
             if subnet.prefix == subnet_prefix:
                 for host in subnet.hosts:
-                    if host.vip == src[0] and host.netmask == src[1]:
+                    if host.vip == ip1 and host.netmask == nm:
                         rsock = rdt_socket.rdt_socket(host.counter_socket)
                         rsock.sendBytes(ip_pkg)
-                        
+                        send_OK = True
+                        return len(ip_pkg)
+        if send_OK == False:
+            return -1
 
-# using Interface = Host;
-Interface = Host
-
-
-class Route():
-    def __init__(self, config_file):
-        self.name = 'test'
-        self.route_table = {}
-        # TODO:读取配置文件，将接口状态写入
-        # 此时应该建立连接，获取用于模拟物理连接的socket
-        # self.interface
-    def route_table_init(self):
-        # TODO:使用接口，初始化路由表
-        raise NotImplementedError()
-    
-if __name__ == "__main__":
-    """ 这里是测试 """
-    
+    def recvive(self):
+        if link_buf.empty():
+            logger.debug('The link buf queue is empty.')
+            return None
+        else:
+            return link_buf.get()

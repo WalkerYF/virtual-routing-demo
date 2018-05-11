@@ -22,7 +22,7 @@
 1. 子网内不同IP地址的主机之间数据的发送
 
 ```py
-DataLinkLayer.send_ip_package(ip_pkg: bytes) -> error_code : int
+DataLinkLayer.send(ip_pkg: bytes) -> error_code : int
 # 将这个ip_pkg从该主机发往另一个主机
 ```
 
@@ -34,7 +34,7 @@ DataLinkLayer.send_ip_package(ip_pkg: bytes) -> error_code : int
 链路层上的多个端口，都可能会收到IP包，链路层的工作是将这些IP包向上发送至网络层，由网络层进行解析。
 
 ```py
-DataLinkLayer.recvive_ip_package()  -> ip_pkb : bytes
+DataLinkLayer.recvive()  -> ip_pkb : bytes
 # 阻塞式收取IP包，会收到一个bytes类型的IP包
 ```
 

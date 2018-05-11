@@ -10,6 +10,7 @@ import logging
 import unittest
 import pdb
 import pickle
+from include.utilities import IP_Package
 from include import shortestPath
 
 logging.basicConfig(
@@ -23,8 +24,8 @@ logger.setLevel(logging.DEBUG)
 # using Interface = Host;
 Interface = link.Host
 
+link_layer = link.DataLinkLayer()
 
-link_layer = link.DataLinkLayer() 
 class Route():
     def __init__(self, config_file):
         config = json.load(config_file)
@@ -62,7 +63,8 @@ class Route():
 
     def test_send(self, s):
         logger.info("int test_send")
-        link_layer.send(("8.8.1.2", 24), ("8.8.1.3", 24), s.encode('ascii'))
+        pkg = IP_Package('8.8.1.2', '8.8.1.3', 24, s.encode('ascii'))
+        link_layer.send(pkg.to_bytes())
     
 if __name__ == "__main__":
     """ 这里是测试 """
