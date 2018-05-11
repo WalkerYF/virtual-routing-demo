@@ -50,9 +50,10 @@ class Route():
         graph = pickle.load(f)
         f.close()
 
-        print(graph)
-        self.shortestPath = shortestPath.SPFA(graph, self.index)
-        print(self.shortestPath)
+        logger.debug(graph)
+        self.shortestPath, self.previous_node = shortestPath.SPFA(graph, self.index)
+        logger.debug(self.shortestPath)
+        logger.debug(self.previous_node)
 
         # TODO:读取配置文件，将接口状态写入
         # 此时应该建立连接，获取用于模拟物理连接的socket
