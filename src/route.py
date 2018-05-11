@@ -25,7 +25,7 @@ link_layer = link.DataLinkLayer()
 
 class Route():
     def __init__(self, config_file):
-        config = json.loads(config_file)
+        config = json.load(config_file)
         self.name = config['name']
         self.interfaces = config['interfaces']
         self.route_table = {}
@@ -47,7 +47,6 @@ class Route():
     
 if __name__ == "__main__":
     """ 这里是测试 """
-    pdb.set_trace() 
     config_file = sys.argv[1]
     config_f =  open(config_file, 'r')
     route = Route(config_f)

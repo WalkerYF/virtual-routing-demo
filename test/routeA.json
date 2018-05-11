@@ -1,5 +1,6 @@
 {
-    "interface": [
+    "name": "A", 
+    "interfaces": [
         {
             "vip": "8.8.1.2",
             "netmask": 24,

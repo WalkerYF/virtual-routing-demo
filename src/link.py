@@ -7,6 +7,7 @@ from include import rdt_socket
 
 class Host(threading.Thread):
     def __init__(self, vip_netmask, pip_port):
+        threading.Thread.__init__(self)
         if not type(vip_netmask) is tuple or len(vip_netmask) != 2:
             raise ValueError('vip_netmask should be a tuple and length 2')
         if not type(pip_port) is tuple or len(pip_port) != 2:
