@@ -21,6 +21,7 @@ def SPFA(graph, src):
     '''
     V = len(graph)
     min_distance = [MAX_INT for i in range(V)]
+    previous_node = [-1 for i in range(V)]
     min_distance[src] = 0
 
     q = queue.Queue()
@@ -36,10 +37,11 @@ def SPFA(graph, src):
             if min_distance[destination] > min_distance[node] + weight:
                 logger.info('update %d' % destination)
                 min_distance[destination] = min_distance[node] + weight
+                previous_node[destination] = node
                 q.put(destination)
     
     replace_max_int_to_m1(min_distance)
-    return min_distance
+    return min_distance, previous_node
 
 def replace_max_int_to_m1(ls):
     for idx, val in enumerate(ls):
