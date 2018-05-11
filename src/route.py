@@ -1,7 +1,7 @@
 import socket
 import json
 import config
-import utilities
+from include import utilities
 import threading
 from include import rdt_socket
 import link
