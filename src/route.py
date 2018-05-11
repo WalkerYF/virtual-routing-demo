@@ -10,6 +10,7 @@ import logging
 import unittest
 import pdb
 import pickle
+from include.utilities import IP_Package
 from include import shortestPath
 
 logging.basicConfig(
@@ -23,23 +24,23 @@ logger.setLevel(logging.DEBUG)
 # using Interface = Host;
 Interface = link.Host
 
+link_layer = link.DataLinkLayer()
 
-link_layer = link.DataLinkLayer() 
 class Route():
     def __init__(self, config_file):
         config = json.load(config_file)
         self.name = config['name']
         self.interfaces = []
         for intf in config['interfaces']:
-            self.interfaces.append(
-                Interface(
+            new_interface = Interface(
                 self.name,
                 (intf['vip'], intf['netmask']),
                 (intf['pip'], intf['port']),
                 (intf['counter_vip'], intf['counter_netmask']),
                 (intf['counter_pip'], intf['counter_port'])
-                )
             )
+            self.interfaces.append(new_interface)
+            link_layer.host_register(new_interface) # host and interface are just two names for the same thing
         logger.debug(self.interfaces)
         self.index = config['index']
         self.route_table = {}
@@ -49,20 +50,23 @@ class Route():
         graph = pickle.load(f)
         f.close()
 
-        print(graph)
-        self.shortestPath = shortestPath.SPFA(graph, self.index)
-        print(self.shortestPath)
+        logger.debug(graph)
+        self.shortestPath, self.previous_node = shortestPath.SPFA(graph, self.index)
+        logger.debug(self.shortestPath)
+        logger.debug(self.previous_node)
 
-        # TODO:读取配置文件，将接口状态写入
-        # 此时应该建立连接，获取用于模拟物理连接的socket
-        # self.interface
+        while True:
+            # never return
+            #TODO: here
+
     def route_table_init(self):
         # TODO:使用接口，初始化路由表
         raise NotImplementedError()
 
     def test_send(self, s):
         logger.info("int test_send")
-        link_layer.send(("8.8.1.2", 24), ("8.8.1.3", 24), s.encode('ascii'))
+        pkg = IP_Package('8.8.1.2', '8.8.1.3', 24, s.encode('ascii'))
+        link_layer.send(pkg.to_bytes())
     
 if __name__ == "__main__":
     """ 这里是测试 """
