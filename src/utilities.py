@@ -3,6 +3,7 @@ utilities functions here
 '''
 import json
 import socket
+import struct
 
 def objEncode(obj):
     """ obj，返回binary对象 """
@@ -30,3 +31,27 @@ def get_host_ip():
     finally:
        s.close()
     return ip
+
+class IP_Package():
+    def __init__(self, src_ip : str, dest_ip : str, data : bytes):
+        self.src_ip = src_ip
+        self.dest_ip = dest_ip
+        self.data = data
+
+    def to_bytes(self):
+        """ 将自己转成比特形式返回 """
+        pass
+
+    @staticmethod
+    def bytes_package_to_objdect(ip_pkg : bytes):
+        pass
+
+    @staticmethod
+    def object_package_to_bytes(ip_pkb_object : IP_Package):
+        pass
+
+
+def ip_to_bytes(ip : str):
+    """ 将ip转成比特 """
+        
+    
