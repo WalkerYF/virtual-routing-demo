@@ -28,7 +28,7 @@ class rdt_socket(object):
         self.s = s
         self.databuf = bytes()
 
-    def sendBytes(self, f : bytearray):
+    def sendBytes(self, f : bytes):
         try:
             l = len(f)
             header = struct.pack('!1Q', l)
@@ -49,8 +49,8 @@ class rdt_socket(object):
                 return body
         while True:
             data = self.s.recv(1024)
-            logger.debug('Received raw tcp data len {}'.format(len(data)))
             if data:
+                logger.debug('Received raw tcp data len {}'.format(len(data)))
                 self.databuf += data
                 while True:
                     if len(self.databuf) < FILE_HEADER_SIZE:
