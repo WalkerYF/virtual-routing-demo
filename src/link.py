@@ -1,10 +1,10 @@
 import socket
 import json
 import config
-import utilities
 import threading
 import logging
 from include import rdt_socket
+from include.utilities import get_subnet
 logging.basicConfig(
     # filename='../../log/client.{}.log'.format(__name__),
     format='[%(asctime)s - %(name)s - %(levelname)s] : \n%(message)s\n',
@@ -47,12 +47,8 @@ class Host(threading.Thread):
             logger.debug("Route {} recv {}".format(self.vip, s))
             #TODO: not finished
 
-    @staticmethod
-    def getSubnetPrefix(host):
-        # TODO:不管netmask是多少，目前就是当netmask是24...
-        pos = host.vip.rfind('.')
-        return host.vip[0:pos]
-
+    def getSubnetPrefix(self):
+        return get_subnet(self.vip, self.netmask)
 class Subnet():
     """ FIXME:子网内的主机列表，多台路由器之间内存级共享，需要改 """
     def __init__(self, prefix):
@@ -150,7 +146,7 @@ class DataLinkLayer():
         #                 _host.counter_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         #                 # 注意：该语句依赖于一个子网里只有两台主机
         #                 _host.counter_socket.connect(subnet.hosts[1 - idx].pip_port)
-            
+
     def send(self, src, dest, ip_pkg):
         """
         实现假设：
@@ -161,8 +157,12 @@ class DataLinkLayer():
         注意：
             1. dest这个参数似乎没用上
         """
-        pos = src[0].rfind('.')
-        subnet_prefix = src[0][0:pos]
+        ip1, nm1 = src
+        _, nm2 = dest
+        if nm1 != nm2:
+            logger.error('{} and {} not in same subnet'.format(str(nm1), str(nm2)))
+            raise Exception("{} and {} not in same subnet".format(nm1, nm2))
+        subnet_prefix = get_subnet(ip1, nm1)
         for subnet in self.subnets:
             if subnet.prefix == subnet_prefix:
                 for host in subnet.hosts:

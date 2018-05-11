@@ -1,5 +1,6 @@
 {
     "name": "A", 
+    "index": 0,
     "interfaces": [
         {
             "vip": "8.8.1.2",
