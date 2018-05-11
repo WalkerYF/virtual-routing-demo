@@ -59,11 +59,11 @@ class IP_Package():
         pass
 
     @staticmethod
-    def bytes_package_to_objdect(ip_pkg : bytes):
+    def bytes_package_to_objdect(ip_pkg : bytes) -> 'IP_Package':
         pass
 
     @staticmethod
-    def object_package_to_bytes(ip_pkb_object : 'IP_Package'):
+    def object_package_to_bytes(ip_pkb_object : 'IP_Package') -> bytes:
         pass
 
 
