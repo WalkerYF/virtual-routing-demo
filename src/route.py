@@ -66,14 +66,17 @@ class Route():
             src_ip = ip_package.src_ip
             dst_ip = ip_package.dest_ip
             netmask = ip_package.net_mask
+            final_dst_ip = ip_package.final_ip
+            body_data = ip_package.data
             #TODO: 判断是自己要了还是发给别人
             #TODO: 
             #FIXME: error
             send_ip_package = IP_Package(
                 src_ip,
                 dst_ip,# TODO: dst ip here, start here
+                final_dst_ip,
                 netmask,
-                b""
+                body_data
             )
             link_layer.send(send_ip_package.to_bytes())
 
