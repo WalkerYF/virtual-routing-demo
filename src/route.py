@@ -42,14 +42,17 @@ class Route():
         # TODO:使用接口，初始化路由表
         raise NotImplementedError()
 
-    def test_send(s):
-        link_layer.send(("8.8.1.2", 24), ("8.8.1.3", 24), bytes(s))
+    def test_send(self, s):
+        link_layer.send(("8.8.1.2", 24), ("8.8.1.3", 24), s.encode('ascii'))
     
 if __name__ == "__main__":
     """ 这里是测试 """
-    config_file = sys.argv[1]
-    config_f =  open(config_file, 'r')
-    route = Route(config_f)
+    # config_file = sys.argv[1]
+    config_f =  open("../test/routeA.json", 'r')
+    routeA = Route(config_f)
+    config_f =  open("../test/routeE.json", 'r')
+    routeE = Route(config_f)
+
     while True:
-        s = input("Route {} >".format(route.name))
-        route.test_send(s)
+        s = input("Route {} >".format(routeA.name))
+        routeA.test_send(s)

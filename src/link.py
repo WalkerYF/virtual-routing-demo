@@ -3,8 +3,15 @@ import json
 import config
 import utilities
 import threading
+import logging
 from include import rdt_socket
-
+logging.basicConfig(
+    # filename='../../log/client.{}.log'.format(__name__),
+    format='[%(asctime)s - %(name)s - %(levelname)s] : \n%(message)s\n',
+    # datefmt='%M:%S',
+)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 class Host(threading.Thread):
     def __init__(self, vip_netmask, pip_port):
         threading.Thread.__init__(self)
@@ -21,9 +28,6 @@ class Host(threading.Thread):
         # 初始Interface的状态时down的
         self.status = "down"
     
-    def __eq__(self, rhs):
-        return (self.vip == rhs.vip) and (self.netmask == rhs.netmask)
-    
     def run(self):
         """ 启动一个新的线程，监听一个端口 """
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -36,6 +40,8 @@ class Host(threading.Thread):
         rdt_s = rdt_socket.rdt_socket(client_socket)
         while True:
             data = rdt_s.recvBytes()
+            s = str(data)
+            logger.debug("Route {} recv {}".format(self.vip, s))
             #TODO: not finished
 
     @staticmethod
@@ -63,6 +69,7 @@ class DataLinkLayer():
         # 根据host的vip和netmask，能够确定它的子网编号
         subnet_prefix = Host.getSubnetPrefix(host) #TODO: 根据vip和netmask判断子网编号
         # 如果这个子网现在不存在, 说明这是该子网第一台主机，因此新建这个子网
+        print(self.subnets)
         if not subnet_prefix in [i.prefix for i in self.subnets]: 
             new_subnet = Subnet(subnet_prefix)
             # 新的子网中加入这台主机
@@ -71,6 +78,7 @@ class DataLinkLayer():
             self.subnets.append(new_subnet)
             # 这台主机（该子网第一台主机）的监听线程开始工作
             host.start()
+            logger.debug("New subnet {} created, {} is in it".format(subnet_prefix, host.vip))
         else: # 这台主机应该加入的子网已经存在
             # 遍历所有子网
             for subnet in self.subnets:
@@ -81,12 +89,13 @@ class DataLinkLayer():
                     # 主机的监听线程开始工作
                     host.start()
                     # 这时候这个子网应该有两台主机了，让它们各自获得一个向对方发送信息的socket
+                    logger.debug("{} joined subnet {}".format(host.vip, subnet_prefix))
                     for idx, _host in enumerate(subnet.hosts):
                         _host.counter_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                         # 注意：该语句依赖于一个子网里只有两台主机
                         _host.counter_socket.connect(subnet.hosts[1 - idx].pip_port)
             
-    def send(self, src : Host, dest : Host, ip_pkg):
+    def send(self, src, dest, ip_pkg):
         """
         实现假设：
             1. src这一台host自带的socket能够直接发送到dest
@@ -96,11 +105,12 @@ class DataLinkLayer():
         注意：
             1. dest这个参数似乎没用上
         """
-        subnet_prefix = Host.getSubnetPrefix(src) #TODO: 根据vip和netmask判断子网编号
+        pos = src[0].rfind('.')
+        subnet_prefix = src[0][0:pos]
         for subnet in self.subnets:
             if subnet.prefix == subnet_prefix:
                 for host in subnet.hosts:
-                    if host == src:
+                    if host.vip == src[0] and host.netmask == src[1]:
                         rsock = rdt_socket.rdt_socket(host.counter_socket)
                         rsock.sendBytes(ip_pkg)
                         
