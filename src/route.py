@@ -43,6 +43,7 @@ class Route():
         raise NotImplementedError()
 
     def test_send(self, s):
+        logger.info("int test_send")
         link_layer.send(("8.8.1.2", 24), ("8.8.1.3", 24), s.encode('ascii'))
     
 if __name__ == "__main__":
