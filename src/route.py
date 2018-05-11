@@ -27,13 +27,20 @@ class Route():
     def __init__(self, config_file):
         config = json.load(config_file)
         self.name = config['name']
-        self.interfaces = config['interfaces']
+        self.interfaces = []
+        for intf in config['interfaces']:
+            self.interfaces.append(
+                Interface(
+                self.name,
+                (intf['vip'], intf['netmask']),
+                (intf['pip'], intf['port']),
+                (intf['counter_vip'], intf['counter_netmask']),
+                (intf['counter_pip'], intf['counter_port'])
+                )
+            )
+        logger.debug(self.interfaces)
         self.route_table = {}
-        for interface in self.interfaces:
-            link_layer.host_register(link.Host(
-                (interface['vip'], interface['netmask']),
-                (interface['pip'],interface['port'])
-            ))
+        link_layer.host_register(self.interfaces)
 
         # TODO:读取配置文件，将接口状态写入
         # 此时应该建立连接，获取用于模拟物理连接的socket
@@ -47,12 +54,10 @@ class Route():
     
 if __name__ == "__main__":
     """ 这里是测试 """
-    # config_file = sys.argv[1]
-    config_f =  open("../test/routeA.json", 'r')
-    routeA = Route(config_f)
-    config_f =  open("../test/routeE.json", 'r')
-    routeE = Route(config_f)
+    config_file = sys.argv[1]
+    config_f =  open(config_file, 'r')
+    route = Route(config_f)
 
     while True:
-        s = input("Route {} >".format(routeA.name))
-        routeA.test_send(s)
+        s = input("Route {} >".format(route.name))
+        route.test_send(s)
