@@ -48,17 +48,18 @@ class Host(threading.Thread):
         rdt_s = rdt_socket.rdt_socket(client_socket)
         while True:
             data = rdt_s.recvBytes()
+            # TODO:应该直接将二进制对象放到队列中
             pkg = IP_Package.bytes_package_to_objdect(data)
             link_buf.put(pkg)
             logger.info('--------------------------------------------------')
             logger.debug("Link layer pkg received\n{}".format(pkg))
             logger.info('--------------------------------------------------')
-            #TODO: not finished
+            #TODO: not finished 还需要做拔网线？？
 
     def getSubnetPrefix(self):
         return get_subnet(self.vip, self.netmask)
 class Subnet():
-    """ FIXME:子网内的主机列表，多台路由器之间内存级共享，需要改 """
+    """ TODO:子网接受的prefix，应说明格式，如"8.8.8" """
     def __init__(self, prefix):
         self.prefix = prefix
         self.hosts = [] #子网由(2个)主机组成
@@ -69,7 +70,7 @@ class HostManager(threading.Thread):
         self.hosts = hosts
         self.subnets = subnets
         for host in self.hosts:
-            # TODO should use utilities.get_subnet
+            # TODO: should use utilities.get_subnet
             subnet_prefix = Host.getSubnetPrefix(host)
             new_subnet = Subnet(subnet_prefix)
             # 新的子网中加入这台主机
@@ -86,7 +87,17 @@ class HostManager(threading.Thread):
         self.connect_all()
 
     def connect_all(self):
-        # TODO O(n^2)
+        """
+        尝试连接之前初始化好的所有接口
+        （因为初始化好的接口还没有得到socket相当于还没有连网线）
+        由于是初始化好的接口，因此默认假设一定全都能连上，只是时间早晚的问题
+        处理了：对方没有上线的情况 方法：晚一点再连
+
+        这里如果要优化，可以使用一个队列，
+        如果这个连接失败，放到队列末端，然后只要队列不空就继续循环取队头并尝试连接
+        直到队列为空。
+        """
+        # TODO: O(n^2)
         while len(self.hosts) != self.connected_cnt:
             for host in self.hosts:
                 # is_connected = False
@@ -121,6 +132,7 @@ class DataLinkLayer():
         self.subnets = []  #存储所有子网
 
     def host_register(self, hosts):
+        # TODO:这里相当于传引用，HostManager里面会对self.subnets进行修改，可能会增加新的子网
         self.host_manager = HostManager(hosts, self.subnets)
         self.host_manager.start()
 
@@ -177,6 +189,7 @@ class DataLinkLayer():
     #         raise Exception("{} and {} not in same subnet".format(nm1, nm2))
         subnet_prefix = get_subnet(ip1, nm)
         send_OK = False
+        # 实现了：找到源ip对应子网，再从子网中找到对应host，然后就直接调用这个host的send
         for subnet in self.subnets:
             if subnet.prefix == subnet_prefix:
                 for host in subnet.hosts:

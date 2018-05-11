@@ -28,9 +28,14 @@ link_layer = link.DataLinkLayer()
 
 class Route():
     def __init__(self, config_file):
+        # TODO:这里传进来的是一个已打开的文件对象，并不好，我认为修改为一个json字符串更合适
         config = json.load(config_file)
+        # 从配置文件中初始化各项数据
         self.name = config['name']
+        self.index = config['index']
+        # 用来存储该路由器上已连接网线的接口
         self.interfaces = []
+        # 使用路由器的index，得到对应的ip
         self.index2ip = {}
         for intf in config['interfaces']:
             new_interface = Interface(
@@ -41,10 +46,12 @@ class Route():
                 (intf['counter_pip'], intf['counter_port'])
             )
             self.interfaces.append(new_interface)
+            # TODO:下面这一句我认为应该放在循环外，因为host_register接的是list
             link_layer.host_register(new_interface) # host and interface are just two names for the same thing
+            # TODO:在配置文件里面找不到'counter_index'一项
             self.index2ip[intf['counter_index']] = intf['counter_ip']
         logger.debug(self.interfaces)
-        self.index = config['index']
+        
         self.route_table = {}
         link_layer.host_register(self.interfaces)
 

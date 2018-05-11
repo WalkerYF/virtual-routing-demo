@@ -90,6 +90,7 @@ class IP_Package():
     def __repr__(self):
         return self.__str__()
         
+    # TODO: objdect 打错了，应为object
     @staticmethod
     def bytes_package_to_objdect(ip_pkg : bytes) -> 'IP_Package':
         """ 将一个bytes格式的IP包转成易操作的对象 """

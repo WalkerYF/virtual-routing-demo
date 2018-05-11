@@ -58,10 +58,34 @@ DataLinkLayer.receive()  -> ip_pkb : bytes
 |48-63|子网比特数|
 |64-95|/|
 |96-127|源IP地址|
-|128-159|目的IP地址|
+|128-159|最终目的IP地址|
+|128-159|下一跳IP地址|
 
 ## 链路层底层实现
 
-TODO:
+### 初始化链路
 
-### 
+1. 使用host_register来初始化路由器间的链路
+    1. host_register接受一个interface列表
+    1. 拿到的每一个interface
+        1. 每个interface建立一个监听线程
+            1. 监听线程会accpet得到一个用于接受其他路由信息的socket
+        1. 每个interface尝试连接对方
+            1. 得到一个用于发送路由的socket
+    1. 网线算是连上了
+
+注意，这个host_register只适用于初始化路由器物理拓扑的过程。
+
+TODO:暂时不能够处理网络中间拓扑改变的情况
+
+1. 拔掉网线，一台路由器掉线？
+1. 一台新的路由器想连网线
+
+### send
+
+由于链路层维护着每一个interface对应的socket
+只需要找到对应的interface，然后使用其中的counter_socket发送即可。 
+
+### receive
+
+每一个interface都会有一个接受package的线程，它会从interface的client_socket中不断尝试接受IP包，一旦收到IP包，就会将这个IP包放到链路层的队列中，网络层就可以直接调用recv函数得到链路层收到的IP包
