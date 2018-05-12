@@ -103,7 +103,7 @@ class MonitorLinkLayer(threading.Thread):
 my_transmit_thread = TransmitThread()
 my_monitor_link_layer = MonitorLinkLayer()
 
-class Route():
+class NetworkLayer():
     def __init__(self, config):
         # TODO:这里有两种方案，一种是传json字符串，另一种是传文件名，然后就可以在路由器内部进行读取配置文件初始化
         # 从配置文件中初始化各项数据
@@ -157,6 +157,19 @@ class Route():
             interfaces.append(new_interface)
         link_layer.host_register(interfaces)
 
+    def send(self, ip_package : bytes):
+        """ 只需要将这个包放到队列中即可，另一个线程负责队列中的包处理并发送出去 """
+        route_send_package.put(ip_package)
+
+    def recv(self) -> bytes :
+        """ 阻塞式接受IP包，该IP包一定是发给自己，需要处理的 """
+        while route_recv_package.qsize == 0:
+            continue
+        route_recv_package.get()
+
+    def update_route_table(self):
+        pass
+
     def test_send(self, s):
         pkg = IP_Package('8.8.1.2', '8.8.1.3', '8.8.4.2', 24, s.encode('ascii'))
         link_layer.send(pkg.to_bytes())
@@ -169,7 +182,7 @@ if __name__ == "__main__":
     config = ''
     with open(config_file, 'r') as config_f:
         config = json.load(config_f)
-    route = Route(config)
+    route = NetworkLayer(config)
 
     while True:
         s = input("Route {} >".format(route.name))
