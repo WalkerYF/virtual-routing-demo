@@ -16,10 +16,10 @@ class RouteTable():
         if local_link_list != '':
             self.init_local_link(local_link_list)
     
-    def init_local_link(self,dest_net_mask_list):
-        """ 传入（dest_net, net_mask)元组的列表  : [(str, int)] """
-        for dest_net,net_mask in dest_net_mask_list:
-            self.update_local_link(dest_net, net_mask)
+    def init_local_link(self, local_ip_list):
+        """ 传入[local_ip ]的列表  : [str] """
+        for local_ip in local_ip_list:
+            self.update_local_link(local_ip)
 
     def init_item(self,dest_net_mask_dest_ip_list):
         """ 传入（dest_net, net_mask, dest_ip)元组的列表  : [(str, int, str)] """
@@ -49,6 +49,7 @@ class RouteTable():
         通过**最长匹配方法**得到下一跳路由
         1. 取子网掩码与子网相与 与目的子网相等的
         2. 取子网掩码最大的
+        返回目的ip，及目的子网掩码
         """
         dest_index = None
         max_net_mask = 0
@@ -70,7 +71,7 @@ class RouteTable():
             # FIXME:并没有做相应的处理，以后可能要做？
             return None
         else:
-            return self.route_table.loc[dest_index, 'dest_ip']
+            return self.route_table.loc[dest_index, 'dest_ip'],self.route_table.loc[dest_index,'net_mask']
     
     def delete_item(self, dest_net : str, net_mask : int):
         """ 删除一个表项 TODO:没有处理表格中不存在这一项的情况""" 
@@ -80,7 +81,7 @@ class RouteTable():
     def is_local_link(self, dest_net : str, net_mask : int=32) -> bool:
         """ 检测这个是不是本地链路的ip，应该直接拿完整的ip地址进行比较 """
         gateway = self.get_dest_ip(dest_net)
-        return gateway == 'on-link'
+        return gateway[0] == 'on-link'
 
     def save_route_table(self, csv_file_name):
         self.route_table.to_csv(csv_file_name, index=True, sep=',')
