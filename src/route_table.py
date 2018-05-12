@@ -13,6 +13,11 @@ class RouteTable():
         """ 传入（dest_net, net_mask)元组的列表  : [(str, int)] """
         for dest_net,net_mask in dest_net_mask_list:
             self.update_local_link(dest_net, net_mask)
+
+    def init_item(self,dest_net_mask_dest_ip_list):
+        """ 传入（dest_net, net_mask, dest_ip)元组的列表  : [(str, int, str)] """
+        for dest_net,net_mask,dest_ip in dest_net_mask_dest_ip_list:
+            self.update_item(dest_net, net_mask, dest_ip)
     
     def __str__(self):
         return self.route_table.__str__()
@@ -49,7 +54,7 @@ class RouteTable():
     def save_route_table(self, csv_file_name):
         self.route_table.to_csv(csv_file_name, index=True, sep=',')
     
-    def show_route_table(self):
+    def show(self):
         print(self)
     
     @staticmethod
@@ -64,27 +69,37 @@ if __name__ == '__main__':
         ('8.8.1',24),
         ('8.8.2',24),
     ]
+    init_net = [
+        ('8.8.8',24, '8.8.1.2'),
+        ('8.8.1',24, '8.8.2.2'),
+        ('8.8.2',24, '8.8.4.2'),
+    ]
+
+    init = RouteTable()
+    init.init_item(init_net)
+    init.show()
+
     t = RouteTable(local_link_list=local_link_net)
 
-    t.show_route_table()
+    t.show()
 
     t.update_item('8.8.1', 24, '8.8.2.5')
 
     print("\nafter :  t.update_item('8.8.1', 24, '8.8.2.5') \n")
     
-    t.show_route_table()
+    t.show()
     
     t.update_item('8.8.1', 25, '8.8.2.5')
 
     print("\nafter :  t.update_item('8.8.1', 25, '8.8.2.5') \n")
     
-    t.show_route_table()
+    t.show()
     
     t.delete_item('8.8.1', 25)
 
     print("\nafter :      t.delete_item('8.8.1', 25) \n")
     
-    t.show_route_table()
+    t.show()
     
     print("\nafter : t.get_dest_ip('8.8.1', 24)")
 
@@ -102,6 +117,6 @@ if __name__ == '__main__':
 
     print(t.is_local_link('8.8.1', 24))
 
-    t.show_route_table()
+    t.show()
     
     t.save_route_table('../test/test_route_table.csv')
