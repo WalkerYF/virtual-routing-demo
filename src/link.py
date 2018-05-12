@@ -1,3 +1,4 @@
+from typing import Optional
 import socket
 import json
 import config
@@ -210,7 +211,7 @@ class DataLinkLayer():
         if send_OK == False:
             return -1
 
-    def receive(self):
+    def receive(self) -> Optional[bytes]:
         if link_buf.empty():
             # logger.debug('The link buf queue is empty.')
             return None

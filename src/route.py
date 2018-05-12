@@ -1,3 +1,15 @@
+'''
+数据流动方向
+link_layer : DataLinkLayer
+-> my_monitor_link_layer : MonitorLinkLayer
+    -> route_recv_package : Queue
+        -> route.recv() : NetworkLayer (member function)
+        -> END
+    -> route_send_package : Queue
+        -> my_package_formard_thread: PkgForwardThread
+        -> link_layer: DataLinkLayer
+        -> END
+'''
 from typing import Optional
 import socket
 import json
@@ -18,6 +30,7 @@ from include.utilities import IP_Package
 from include import shortestPath
 import time
 
+
 logging.basicConfig(
     # filename='../../log/client.{}.log'.format(__name__),
     format='[%(asctime)s - %(name)s - %(levelname)s] : \n%(message)s\n',
@@ -35,9 +48,9 @@ my_route_table = RouteTable()
 
 # 注意! 下面的两个队列存放对象，而不是二进制数据
 # 用来存储网络层需要向上传递的ip包
-route_recv_package = queue.Queue(0)
+route_recv_package = queue.Queue(0) # type: Queue[bytes]
 # 用来存储网络层需要发送的ip包
-route_send_package = queue.Queue(0)
+route_send_package = queue.Queue(0) # type: Queue[bytes]
 
 
 class PkgForwardThread(threading.Thread):
@@ -45,7 +58,7 @@ class PkgForwardThread(threading.Thread):
     一个转发线程，只做一件事，
     根据路由表，修改需要发送的包中dest_ip中的值，并将包交给链路层
     """
-    def __init__(self):
+    def __init__(self) -> None:
         threading.Thread.__init__(self)
     def run(self):
         """ 从队列中拿到一个包，做适当转换后，交给链路层 """
@@ -61,7 +74,7 @@ class PkgForwardThread(threading.Thread):
             logger.debug(ip_package)
 
             # 使用成员函数处理IP包，修改其中的dest_ip字段，获得新的IP包
-            ret_ip_package = self.ip_package_modifier(ip_package)
+            ret_ip_package = self.ip_package_modifier(ip_package) # type: Optional["IP_Package"]
             if ret_ip_package == None:
                 logger.info('{} is unreachable. \nShow your route table by "show route table"'.format(ip_package.final_ip))
                 continue
@@ -89,12 +102,12 @@ class PkgForwardThread(threading.Thread):
         return ip_pkg
 
 class MonitorLinkLayer(threading.Thread):
-    def __init__(self):
+    def __init__(self) -> None:
         threading.Thread.__init__(self)
     def run(self):
         """ 监听线程，用于从链路层得到IP包，并确定是转发还是交由网络层上层协议进一步处理 """
         while True:
-            recv_data = link_layer.receive()
+            recv_data = link_layer.receive() # type: Optional[bytes]
             if recv_data == None:
                 continue
             # 查看该包是否是发给本机的
@@ -111,7 +124,7 @@ my_package_forward_thread = PkgForwardThread()
 my_monitor_link_layer = MonitorLinkLayer()
 
 class NetworkLayer():
-    def __init__(self, config):
+    def __init__(self, config) -> None:
         # TODO:这里有两种方案，一种是传json字符串，另一种是传文件名，然后就可以在路由器内部进行读取配置文件初始化
         # 从配置文件中初始化各项数据
         self.name = config['name']
@@ -180,6 +193,7 @@ class NetworkLayer():
         return route_recv_package.get()
 
     def update_route_table(self):
+        #TODO: here
         pass
 
     def test_send(self, s):
@@ -191,7 +205,7 @@ class NetworkLayer():
 if __name__ == "__main__":
     """ 这里是测试 """
     config_file = sys.argv[1]
-    config = ''
+    config = None # type: object
     with open(config_file, 'r') as config_f:
         config = json.load(config_f)
     route = NetworkLayer(config)
