@@ -2,7 +2,7 @@ import pandas as pd
 class RouteTable():
     def __init__(self, csv_file_name, local_link_list=''):
         """ pandas的Dataframe，会更加好用一些 :-) """
-        self.route_table = pd.read_csv(csv_file_name, header=0)
+        self.route_table = pd.read_csv(csv_file_name, header=0, index_col=0)
         if local_link_list != '':
             self.init_local_link(local_link_list)
     
@@ -42,6 +42,9 @@ class RouteTable():
         """ 检测这个是不是本地链路已连接的子网 """
         gateway = self.get_dest_ip(dest_net, net_mask)
         return gateway == 'on-link'
+
+    def save_route_table(self, csv_file_name):
+        self.route_table.to_csv(csv_file_name, index=True, sep=',')
     
     def show_route_table(self):
         print(self)
@@ -98,3 +101,4 @@ if __name__ == '__main__':
 
     t.show_route_table()
     
+    t.save_route_table('../test/test_route_table.csv')
