@@ -1,0 +1,36 @@
+{
+    "name": "D", 
+    "index": 3,
+    "interfaces": [
+        {
+            "vip": "8.8.2.3",
+            "netmask": 24,
+            "counter_vip": "8.8.2.2",
+            "counter_netmask": 24,
+            "pip": "127.0.0.1",
+            "port": 6023,
+            "counter_pip": "127.0.0.1",
+            "counter_port": 6022
+        },
+        {
+            "vip": "8.8.5.3",
+            "netmask": 24,
+            "counter_vip": "8.8.5.2",
+            "counter_netmask": 24,
+            "pip": "127.0.0.1",
+            "port": 6053,
+            "counter_pip": "127.0.0.1",
+            "counter_port": 6052
+        },
+        {
+            "vip": "8.8.6.3",
+            "netmask": 24,
+            "counter_vip": "8.8.6.2",
+            "counter_netmask": 24,
+            "pip": "127.0.0.1",
+            "port": 6063,
+            "counter_pip": "127.0.0.1",
+            "counter_port": 6062
+        }
+    ]
+}

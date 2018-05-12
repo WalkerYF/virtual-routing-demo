@@ -11,6 +11,16 @@
             "port": 6042,
             "counter_pip": "127.0.0.1",
             "counter_port": 6043
+        },
+        {
+            "vip": "8.8.5.2",
+            "netmask": 24,
+            "counter_vip": "8.8.5.3",
+            "counter_netmask": 24,
+            "pip": "127.0.0.1",
+            "port": 6052,
+            "counter_pip": "127.0.0.1",
+            "counter_port": 6053
         }
     ]
 }

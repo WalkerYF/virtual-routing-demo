@@ -1,0 +1,26 @@
+{
+    "name": "C", 
+    "index": 2,
+    "interfaces": [
+        {
+            "vip": "8.8.3.3",
+            "netmask": 24,
+            "counter_vip": "8.8.3.2",
+            "counter_netmask": 24,
+            "pip": "127.0.0.1",
+            "port": 6033,
+            "counter_pip": "127.0.0.1",
+            "counter_port": 6032
+        },
+        {
+            "vip": "8.8.6.2",
+            "netmask": 24,
+            "counter_vip": "8.8.6.3",
+            "counter_netmask": 24,
+            "pip": "127.0.0.1",
+            "port": 6062,
+            "counter_pip": "127.0.0.1",
+            "counter_port": 6063
+        }
+    ]
+}
