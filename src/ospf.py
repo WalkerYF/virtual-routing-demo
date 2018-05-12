@@ -12,7 +12,6 @@ network_layer = route.NetworkLayer(config)
 
 # 添加路由表项
 # route.my_route_table.update_item('8.8.4.0', 24, '8.8.1.3')
-
 while True:
     s = input()
     print(s)
