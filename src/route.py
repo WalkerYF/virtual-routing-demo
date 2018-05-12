@@ -1,3 +1,4 @@
+from typing import Optional
 import socket
 import json
 import config
@@ -39,7 +40,7 @@ route_recv_package = queue.Queue(0)
 route_send_package = queue.Queue(0)
 
 
-class TransmitThread(threading.Thread):
+class PkgForwardThread(threading.Thread):
     """
     一个转发线程，只做一件事，
     根据路由表，修改需要发送的包中dest_ip中的值，并将包交给链路层
@@ -53,8 +54,6 @@ class TransmitThread(threading.Thread):
             while route_send_package.qsize() == 0:
                 continue
             # 从队列中获得一个包
-            #send_package = route_send_package.get()
-            #ip_package = IP_Package.bytes_package_to_object(send_package)
             ip_package = route_send_package.get()
 
             # DEBUG信息
@@ -62,18 +61,18 @@ class TransmitThread(threading.Thread):
             logger.debug(ip_package)
 
             # 使用成员函数处理IP包，修改其中的dest_ip字段，获得新的IP包
-            ret_ip_package = self.ip_package_handler(ip_package)
+            ret_ip_package = self.ip_package_modifier(ip_package)
             if ret_ip_package == None:
-                logger.debug('{} is unreachable. \nShow your route table by "show route table"'.format(ip_package.final_ip))
+                logger.info('{} is unreachable. \nShow your route table by "show route table"'.format(ip_package.final_ip))
                 continue
             # DEBUG信息
-            logger.debug(' had modifly !')
+            logger.debug('ip pkg has been modified. now forwarding...')
             logger.debug(ret_ip_package)
 
             # 发送IP包
             link_layer.send(ret_ip_package.to_bytes())
 
-    def ip_package_handler(self, ip_pkg : 'IP_Package'):
+    def ip_package_modifier(self, ip_pkg : 'IP_Package') -> Optional['IP_Package']:
         """ 
         使用转发表对IP包进行处理
         1. 使用目的ip获得其下一跳ip:dest_ip
@@ -86,8 +85,7 @@ class TransmitThread(threading.Thread):
         if dest_ip_net_mask == None:
             return None
         # 修改ip包的下一跳路由
-        ip_pkg.dest_ip = dest_ip_net_mask[0]
-        ip_pkg.net_mask = dest_ip_net_mask[1]
+        ip_pkg.dest_ip, ip_pkg.net_mask = dest_ip_net_mask
         return ip_pkg
 
 class MonitorLinkLayer(threading.Thread):
@@ -109,7 +107,7 @@ class MonitorLinkLayer(threading.Thread):
                 # 网络层修改ip包，要转发
                 route_send_package.put(ip_package)
 
-my_transmit_thread = TransmitThread()
+my_package_forward_thread = PkgForwardThread()
 my_monitor_link_layer = MonitorLinkLayer()
 
 class NetworkLayer():
@@ -120,7 +118,7 @@ class NetworkLayer():
         self.index = config['index']
 
         # 开启转发线程
-        my_transmit_thread.start()
+        my_package_forward_thread.start()
         # 开启链路层监听线程，用于从链路层得到包
         my_monitor_link_layer.start()
         # 初始化转发表
