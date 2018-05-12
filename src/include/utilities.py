@@ -84,6 +84,7 @@ class IP_Package():
         display_str += 'src_ip : {}\n'.format(self.src_ip)
         display_str += 'final_ip : {}\n'.format(self.final_ip)
         display_str += 'dest_ip : {}\n'.format(self.dest_ip)
+        display_str += 'data_len : {}\n'.format(self.data_bytes_length)
         display_str += 'data : {}\n'.format(str(self.data))
         return display_str
     
