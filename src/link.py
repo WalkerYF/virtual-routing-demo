@@ -13,7 +13,8 @@ logging.basicConfig(
     # datefmt='%M:%S',
 )
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+# logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 link_buf = queue.Queue(0)
 
@@ -49,10 +50,10 @@ class Host(threading.Thread):
         while True:
             data = rdt_s.recvBytes()
             # TODO:应该直接将二进制对象放到队列中
-            pkg = IP_Package.bytes_package_to_objdect(data)
-            link_buf.put(pkg)
+            # pkg = IP_Package.bytes_package_to_objdect(data)
+            link_buf.put(data)
             logger.info('--------------------------------------------------')
-            logger.debug("Link layer pkg received\n{}".format(pkg))
+            logger.debug("Link layer pkg received\n{}".format(IP_Package.bytes_package_to_objdect(data)))
             logger.info('--------------------------------------------------')
             #TODO: not finished 还需要做拔网线？？
 
