@@ -35,7 +35,7 @@ class TransmitThread(threading.Thread):
     """
     一个监听转发线程，只做两件事，
     1. 根据路由表 转发接收到的包，
-    2. 将包往上送往网络层处理
+    2. 如果不转发的话，就将包往上送往网络层处理
     """
     def __init__(self):
         threading.Thread.__init__(self)
