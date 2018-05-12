@@ -9,6 +9,7 @@ import sys
 import logging
 import unittest
 import pdb
+import queue
 import pickle
 import threading
 from route_table import RouteTable
@@ -30,49 +31,67 @@ Interface = link.Host
 link_layer = link.DataLinkLayer()
 my_route_table = RouteTable()
 
+# 用来存储网络层需要向上传递的ip包
+route_recv_package = queue.Queue(0)
+# 用来存储网络层需要发送的ip包
+route_send_package = queue.Queue(0)
+
 
 class TransmitThread(threading.Thread):
     """
-    一个监听转发线程，只做两件事，
-    1. 根据路由表 转发接收到的包，
-    2. 如果不转发的话，就将包往上送往网络层处理
+    一个转发线程，只做一件事，
+    根据路由表，修改需要发送的包中dest_ip中的值，并将包交给链路层
     """
     def __init__(self):
         threading.Thread.__init__(self)
     def run(self):
-        """ 监听线程，用于从链路层得到IP包，并确定是转发还是交由网络层进一步处理 """
+        """ 从队列中拿到一个包，做适当转换后，交给链路层 """
+        while True:
+            # 如果队列为空，那就等直到队列中有包
+            while route_send_package.qsize() == 0:
+                continue
+            # 从队列中获得一个包
+            send_package = route_send_package.get()
+            ip_package = IP_Package.bytes_package_to_objdect(send_package)
+            # 使用成员函数处理IP包，修改其中的dest_ip字段，获得新的IP包
+            ret = self.ip_package_handler(ip_package)
+            # 发送IP包
+            link_layer.send(ret)
+
+    def ip_package_handler(self, ip_pkg : 'IP_Package'):
+        """ 
+        使用转发表对IP包进行处理，使用目的ip获得其下一跳ip:dest_ip
+        并修改相应字段，返回一个新的IP包(bytes)用于转发，
+        """
+        # 获得最终目的IP所在子网
+        dest_net = utilities.get_subnet(ip_pkg.final_ip, ip_pkg.net_mask)
+        # 从转发表中获得去往该子网需要的下一跳路由
+        next_ip = my_route_table.get_dest_ip(dest_net, ip_pkg.net_mask)
+        # 修改ip包的下一跳路由
+        ip_pkg.dest_ip = next_ip
+        return ip_pkg.to_bytes()
+
+class MonitorLinkLayer(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+    def run(self):
+        """ 监听线程，用于从链路层得到IP包，并确定是转发还是交由网络层上层协议进一步处理 """
         while True:
             recv_data = link_layer.receive()
             if recv_data == None:
                 continue
+            # 查看该包是否是发给本机的
             ip_package = IP_Package.bytes_package_to_objdect(recv_data)
-            ret = self.ip_package_handler(ip_package)
-            if ret == None:
+            is_local = my_route_table.is_local_link(ip_package.final_ip)
+            if is_local:
                 # 网络层要了IP包，并交给了更上层的协议
-                continue
+                route_recv_package.put(recv_data)
             else:
                 # 网络层修改了ip包，要转发
-                link_layer.send(ret)
-
-    def ip_package_handler(self, ip_pkg : 'IP_Package'):
-        """ 处理一个IP包，如果由网络层接受，则返回None，否则返回一个新的IP包(bytes)用于转发 """
-        logger.info('receive!!')
-        logger.info(ip_pkg)
-        is_local = my_route_table.is_local_link(ip_pkg.final_ip)
-        if is_local:
-            logger.info('I receive a package which is sent to me!')
-            logger.info(ip_pkg)
-            return None
-        else:
-            # 修改IP包，进行转发
-            dest_net = utilities.get_subnet(ip_pkg.final_ip, ip_pkg.net_mask)
-            next_ip = my_route_table.get_dest_ip(dest_net, ip_pkg.net_mask)
-            ip_pkg.dest_ip = next_ip
-            logger.info('I should transmit this package')
-            logger.info(ip_pkg)
-            return ip_pkg.to_bytes()
+                route_send_package.put(recv_data)
 
 my_transmit_thread = TransmitThread()
+my_monitor_link_layer = MonitorLinkLayer()
 
 class Route():
     def __init__(self, config):
@@ -81,8 +100,10 @@ class Route():
         self.name = config['name']
         self.index = config['index']
 
-        # 开启监听线程，用于转发包
+        # 开启转发线程
         my_transmit_thread.start()
+        # 开启链路层监听线程，用于从链路层得到包
+        my_monitor_link_layer.start()
         # 初始化转发表
         self.init_route_table(config)
         # 初始化网线接口
