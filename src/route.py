@@ -75,18 +75,46 @@ class TransmitThread(threading.Thread):
 my_transmit_thread = TransmitThread()
 
 class Route():
-    def __init__(self, config_file):
-        # TODO:这里传进来的是一个已打开的文件对象，并不好，我认为修改为一个json字符串更合适
-        config = json.load(config_file)
+    def __init__(self, config):
+        # TODO:这里有两种方案，一种是传json字符串，另一种是传文件名，然后就可以在路由器内部进行读取配置文件初始化
         # 从配置文件中初始化各项数据
         self.name = config['name']
         self.index = config['index']
-        # 用来存储该路由器上已连接网线的接口
-        self.interfaces = []
-        # 使用路由器的index，得到对应的ip
-        self.index2ip = {}
+
+        # 开启监听线程，用于转发包
+        my_transmit_thread.start()
+        # 初始化转发表
+        self.init_route_table(config)
+        # 初始化网线接口
+        self.init_interfaces(config)
+
+        # f = open('matrix_topo.dump', 'rb')
+        # graph = pickle.load(f)
+        # f.close()
+
+        # logger.debug(graph)
+        # self.shortestPath, self.previous_node = shortestPath.SPFA(graph, self.index)
+        # logger.debug(self.shortestPath)
+        # logger.debug(self.previous_node)
+        # logger.debug(self.index2ip)
+
+    def init_route_table(self, config):
+        """ 初始化路由表，写入本地链路地址以及直连子网地址 """
         local_link_list = []
         local_direct_link = []
+        for intf in config['interfaces']:
+            # 得到本地端口地址
+            local_link_list.append((intf['vip'], 32))
+            # 得到本地连接子网
+            local_direct_link.append((utilities.get_subnet(intf['vip'], intf['netmask']), intf['netmask'], intf['counter_vip']))
+        # 初始化转发表，在转发表中写入本机ip以及本机相连子网
+        my_route_table.init_local_link(local_link_list)
+        my_route_table.init_item(local_direct_link)
+        my_route_table.show()
+    
+    def init_interfaces(self, config):
+        """ 初始化接口，并启动每一个接口 """
+        interfaces = []
         for intf in config['interfaces']:
             new_interface = Interface(
                 self.name,
@@ -95,57 +123,8 @@ class Route():
                 (intf['counter_vip'], intf['counter_netmask']),
                 (intf['counter_pip'], intf['counter_port'])
             )
-            self.interfaces.append(new_interface)
-            # 初始化本地链路
-            local_link_list.append((intf['vip'], 32))
-            local_direct_link.append((utilities.get_subnet(intf['vip'], intf['netmask']), intf['netmask'], intf['counter_vip']))
-            # TODO:在配置文件里面找不到'counter_index'一项
-            # self.index2ip[intf['counter_index']] = intf['counter_ip']
-            # TODO:下面这一句我认为应该放在循环外，因为host_register接的是list
-            # link_layer.host_register(new_interface) # host and interface are just two names for the same thing
-        logger.debug(self.interfaces)
-        
-        # 初始化转发表，在转发表中写入本机ip以及本机相连子网
-        my_route_table.init_local_link(local_link_list)
-        my_route_table.init_item(local_direct_link)
-        my_route_table.show()
-
-        # 在注册后，每一个接口都保证有对应的socket
-        # TODO:由于注册那一块尝试连接的过程开了新的线程，会出现，还没有全部注册完，就开始往下执行的情况
-        # TODO:具体的修改方式是：HostManager的connent_all函数不应该在新的线程中运行，在主线程中运行即可，等到物理链路联通了在进行下面的工作
-        link_layer.host_register(self.interfaces)
-
-        # 开启监听线程，用于转发包
-        my_transmit_thread.start()
-
-        f = open('matrix_topo.dump', 'rb')
-        graph = pickle.load(f)
-        f.close()
-
-        logger.debug(graph)
-        self.shortestPath, self.previous_node = shortestPath.SPFA(graph, self.index)
-        logger.debug(self.shortestPath)
-        logger.debug(self.previous_node)
-        logger.debug(self.index2ip)
-
-
-            # #TODO: 判断是自己要了还是发给别人
-            # #TODO: 
-            # #FIXME: error
-            # send_ip_package = IP_Package(
-            #     src_ip,
-            #     dst_ip,# TODO: dst ip here, start here
-            #     final_dst_ip,
-            #     netmask,
-            #     body_data
-            # )
-            # link_layer.send(send_ip_package.to_bytes())
-
-
-
-    def route_table_init(self):
-        # TODO:使用接口，初始化路由表
-        raise NotImplementedError()
+            interfaces.append(new_interface)
+        link_layer.host_register(interfaces)
 
     def test_send(self, s):
         pkg = IP_Package('8.8.1.2', '8.8.1.3', '8.8.4.2', 24, s.encode('ascii'))
@@ -156,8 +135,10 @@ class Route():
 if __name__ == "__main__":
     """ 这里是测试 """
     config_file = sys.argv[1]
-    config_f =  open(config_file, 'r')
-    route = Route(config_f)
+    config = ''
+    with open(config_file, 'r') as config_f:
+        config = json.load(config_f)
+    route = Route(config)
 
     while True:
         s = input("Route {} >".format(route.name))
