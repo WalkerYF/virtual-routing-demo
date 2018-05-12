@@ -4,6 +4,7 @@ import sys
 from include.utilities import IP_Package
 import threading
 import logging
+import time
 
 config_name = sys.argv[1]
 with open(config_name, 'r') as config_f:
@@ -33,7 +34,9 @@ class NetworkLayerListener(threading.Thread):
         while True:
             recv = network_layer.recv()
             logger.info('network layer pkg received\n{}'.format(recv))
+            time.sleep(0.1)
 while True:
+    time.sleep(0.1)
     network_layer_listener = NetworkLayerListener()
     network_layer_listener.start()
     s = input()

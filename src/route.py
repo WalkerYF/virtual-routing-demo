@@ -15,6 +15,7 @@ import threading
 from route_table import RouteTable
 from include.utilities import IP_Package
 from include import shortestPath
+import time
 
 logging.basicConfig(
     # filename='../../log/client.{}.log'.format(__name__),
@@ -206,3 +207,4 @@ if __name__ == "__main__":
             link_layer.show_tcp()
         else:
             route.test_send(s)
+        time.sleep(0.1)
