@@ -1,24 +1,16 @@
 {
     "name": "B", 
     "index": 1,
-    "interface": [
+    "interfaces": [
         {
-            "vip": "8.8.1.2",
+            "vip": "8.8.4.2",
             "netmask": 24,
+            "counter_vip": "8.8.4.3",
+            "counter_netmask": 24,
             "pip": "127.0.0.1",
-            "port": 6012
-        },
-        {
-            "vip": "8.8.2.2",
-            "netmask": 24,
-            "pip": "127.0.0.1",
-            "port": 6022
-        },
-        {
-            "vip": "8.8.3.2",
-            "netmask": 24,
-            "pip": "127.0.0.1",
-            "port": 6032
+            "port": 6042,
+            "counter_pip": "127.0.0.1",
+            "counter_port": 6043
         }
     ]
 }
