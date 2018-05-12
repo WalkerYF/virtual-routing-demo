@@ -15,6 +15,8 @@ class RouteTable():
             self.route_table = pd.read_csv(csv_file_name, header=0, index_col=0)
         if local_link_list != '':
             self.init_local_link(local_link_list)
+        # 可能会出现net_mask这列误认为是字符串的情况，所以显式指定为int
+        self.route_table[["net_mask"]] = self.route_table[["net_mask"]].astype(int)
     
     def init_local_link(self, local_ip_list):
         """ 传入[local_ip ]的列表  : [str] """
@@ -59,12 +61,12 @@ class RouteTable():
             # 这里受限于子网的格式必须是X.X.X.X
             dest_net_bits = str_ip_to_bits(row.dest_net)
             final_ip_bits = str_ip_to_bits(final_ip)
-            net_mask_bits = net_mask_to_bits(row.net_mask)
+            net_mask_bits = net_mask_to_bits(int(row.net_mask))
 
             if net_mask_bits & final_ip_bits == dest_net_bits:
-                if max_net_mask < row.net_mask:
+                if max_net_mask < int(row.net_mask):
                     dest_index = index
-                    max_net_mask = row.net_mask
+                    max_net_mask = int(row.net_mask)
 
         if dest_index == None:
             # 说明转发表内没有该ip对应的子网的项
@@ -81,6 +83,8 @@ class RouteTable():
     def is_local_link(self, dest_net : str, net_mask : int=32) -> bool:
         """ 检测这个是不是本地链路的ip，应该直接拿完整的ip地址进行比较 """
         gateway = self.get_dest_ip(dest_net)
+        if gateway == None:
+            return False
         return gateway[0] == 'on-link'
 
     def save_route_table(self, csv_file_name):
