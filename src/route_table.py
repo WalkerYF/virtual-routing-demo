@@ -1,8 +1,11 @@
 import pandas as pd
 class RouteTable():
-    def __init__(self, csv_file_name, local_link_list=''):
+    def __init__(self, csv_file_name='', local_link_list=''):
         """ pandas的Dataframe，会更加好用一些 :-) """
-        self.route_table = pd.read_csv(csv_file_name, header=0, index_col=0)
+        if csv_file_name == '':
+            self.route_table = pd.DataFrame(data=[], columns=['dest_net','net_mask','dest_ip'])
+        else:
+            self.route_table = pd.read_csv(csv_file_name, header=0, index_col=0)
         if local_link_list != '':
             self.init_local_link(local_link_list)
     
@@ -61,7 +64,7 @@ if __name__ == '__main__':
         ('8.8.1',24),
         ('8.8.2',24),
     ]
-    t = RouteTable('../test/test_route_table.csv', local_link_net)
+    t = RouteTable(local_link_list=local_link_net)
 
     t.show_route_table()
 
