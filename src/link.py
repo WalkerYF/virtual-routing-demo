@@ -1,3 +1,4 @@
+from typing import Optional
 import socket
 import json
 import config
@@ -6,7 +7,8 @@ import logging
 import queue
 from prettytable import PrettyTable 
 from include import rdt_socket
-from include.utilities import get_subnet
+from include import utilities
+from typing import List
 from include.utilities import IP_Package
 logging.basicConfig(
     # filename='../../log/client.{}.log'.format(__name__),
@@ -50,7 +52,7 @@ class Host(threading.Thread):
         rdt_s = rdt_socket.rdt_socket(client_socket)
         while True:
             data = rdt_s.recvBytes()
-            # TODO:应该直接将二进制对象放到队列中
+            # NOTICE:应该直接将二进制对象放到队列中
             # pkg = IP_Package.bytes_package_to_object(data)
             link_buf.put(data)
             logger.info('--------------------------------------------------')
@@ -59,12 +61,18 @@ class Host(threading.Thread):
             #TODO: not finished 还需要做拔网线？？
 
     def getSubnetPrefix(self):
-        return get_subnet(self.vip, self.netmask)
+        return utilities.get_subnet(self.vip, self.netmask)
 class Subnet():
-    """ TODO:子网接受的prefix，应说明格式，如"8.8.8" """
-    def __init__(self, prefix):
+    """子网类
+    init:
+        prefix: 子网, 形如x.x.x.x
+    members:
+        hosts: 该子网内的两个主机
+    """
+    def __init__(self, prefix: str):
         self.prefix = prefix
-        self.hosts = [] #子网由(2个)主机组成
+        #子网由(2个)主机组成 
+        self.hosts = [] # type: List[Host]
         
 class HostManager(threading.Thread):
     def __init__(self, hosts, subnets):
@@ -72,8 +80,7 @@ class HostManager(threading.Thread):
         self.hosts = hosts
         self.subnets = subnets
         for host in self.hosts:
-            # TODO: should use utilities.get_subnet
-            subnet_prefix = Host.getSubnetPrefix(host)
+            subnet_prefix = host.getSubnetPrefix() # use member function host.getSubnetPrefix, which call utilities.getSubnet()
             new_subnet = Subnet(subnet_prefix)
             # 新的子网中加入这台主机
             new_subnet.hosts.append(host)
@@ -99,7 +106,7 @@ class HostManager(threading.Thread):
         如果这个连接失败，放到队列末端，然后只要队列不空就继续循环取队头并尝试连接
         直到队列为空。
         """
-        # TODO: O(n^2)
+        # NOTICE: O(n^2)
         while len(self.hosts) != self.connected_cnt:
             for host in self.hosts:
                 # is_connected = False
@@ -130,11 +137,12 @@ class DataLinkLayer():
     模拟链路层，两个Interface之间用网线/八爪线直连的场景
     """
     def __init__(self):
-        self.num_interface = 0
-        self.subnets = []  #存储所有子网
+        self.num_interface = 0 # type: int
+        #存储所有子网
+        self.subnets = []  # type: List[Subnet]
 
     def host_register(self, hosts):
-        # TODO:这里相当于传引用，HostManager里面会对self.subnets进行修改，可能会增加新的子网
+        # NOTICE:这里相当于传引用，HostManager里面会对self.subnets进行修改，可能会增加新的子网
         self.host_manager = HostManager(hosts, self.subnets)
         self.host_manager.start()
 
@@ -142,7 +150,7 @@ class DataLinkLayer():
     # def host_register(self, host):
         # """ 被网络层调用"""
         # # 根据host的vip和netmask，能够确定它的子网编号
-        # subnet_prefix = Host.getSubnetPrefix(host) #TODO: 根据vip和netmask判断子网编号
+        # subnet_prefix = Host.getSubnetPrefix(host) #NOTICE: 根据vip和netmask判断子网编号
         # # 如果这个子网现在不存在, 说明这是该子网第一台主机，因此新建这个子网
         # print(self.subnets)
         # if not subnet_prefix in [i.prefix for i in self.subnets]: 
@@ -189,7 +197,7 @@ class DataLinkLayer():
     #     if nm1 != nm2:
     #         logger.error('{} and {} not in same subnet'.format(str(nm1), str(nm2)))
     #         raise Exception("{} and {} not in same subnet".format(nm1, nm2))
-        subnet_prefix = get_subnet(ip1, nm)
+        subnet_prefix = utilities.get_subnet(ip1, nm)
         send_OK = False
         # 实现了：找到目的ip对应子网，再从子网中找到对应host，然后就直接调用这个host的send
         for subnet in self.subnets:
@@ -203,7 +211,7 @@ class DataLinkLayer():
         if send_OK == False:
             return -1
 
-    def receive(self):
+    def receive(self) -> Optional[bytes]:
         if link_buf.empty():
             # logger.debug('The link buf queue is empty.')
             return None

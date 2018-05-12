@@ -1,4 +1,5 @@
 import pandas as pd
+from typing import Tuple
 from bitarray import bitarray
 class RouteTable():
     """
@@ -21,7 +22,7 @@ class RouteTable():
         for local_ip in local_ip_list:
             self.update_local_link(local_ip)
 
-    def init_item(self,dest_net_mask_dest_ip_list):
+    def init_item(self,dest_net_mask_dest_ip_list : Tuple[str, int, str]):
         """ 传入（dest_net, net_mask, dest_ip)元组的列表  : [(str, int, str)] """
         for dest_net,net_mask,dest_ip in dest_net_mask_dest_ip_list:
             self.update_item(dest_net, net_mask, dest_ip)
@@ -68,7 +69,7 @@ class RouteTable():
 
         if dest_index == None:
             # 说明转发表内没有该ip对应的子网的项
-            # FIXME:并没有做相应的处理，以后可能要做？
+            # TODO:并没有做相应的处理，以后可能要做？
             return None
         else:
             return self.route_table.loc[dest_index, 'dest_ip'],self.route_table.loc[dest_index,'net_mask']
