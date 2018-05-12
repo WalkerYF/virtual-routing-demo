@@ -14,8 +14,8 @@ logging.basicConfig(
     # datefmt='%M:%S',
 )
 logger = logging.getLogger(__name__)
-# logger.setLevel(logging.DEBUG)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
+# logger.setLevel(logging.INFO)
 
 link_buf = queue.Queue(0)
 
@@ -205,7 +205,7 @@ class DataLinkLayer():
 
     def receive(self):
         if link_buf.empty():
-            logger.debug('The link buf queue is empty.')
+            # logger.debug('The link buf queue is empty.')
             return None
         else:
             return link_buf.get()

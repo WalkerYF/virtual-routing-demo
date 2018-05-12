@@ -22,8 +22,8 @@ logging.basicConfig(
     # datefmt='%M:%S',
 )
 logger = logging.getLogger(__name__)
-# logger.setLevel(logging.DEBUG)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
+# logger.setLevel(logging.INFO)
 
 # using Interface = Host;
 Interface = link.Host
@@ -53,10 +53,20 @@ class TransmitThread(threading.Thread):
             # 从队列中获得一个包
             send_package = route_send_package.get()
             ip_package = IP_Package.bytes_package_to_objdect(send_package)
+
+            # DEBUG信息
+            logger.debug(' this package will be modiflied according to route table !')
+            logger.debug(ip_package)
+
             # 使用成员函数处理IP包，修改其中的dest_ip字段，获得新的IP包
-            ret = self.ip_package_handler(ip_package)
+            ret_ip_package = self.ip_package_handler(ip_package)
+
+            # DEBUG信息
+            logger.debug(' had modifly !')
+            logger.debug(ret_ip_package)
+
             # 发送IP包
-            link_layer.send(ret)
+            link_layer.send(ret_ip_package.to_bytes())
 
     def ip_package_handler(self, ip_pkg : 'IP_Package'):
         """ 
@@ -69,7 +79,7 @@ class TransmitThread(threading.Thread):
         next_ip = my_route_table.get_dest_ip(dest_net, ip_pkg.net_mask)
         # 修改ip包的下一跳路由
         ip_pkg.dest_ip = next_ip
-        return ip_pkg.to_bytes()
+        return ip_pkg
 
 class MonitorLinkLayer(threading.Thread):
     def __init__(self):
