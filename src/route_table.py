@@ -38,8 +38,12 @@ class RouteTable():
     def get_dest_ip(self, dest_net :str, net_mask : int):
         """ 传入子网, 得到下一跳ip """
         # 如果传入了本地直连的子网，会返回'on-link'
+        # 如果表中没有这一项
         index = self.get_index(dest_net, net_mask)
-        return self.route_table.loc[index, 'dest_ip']
+        try:
+            return self.route_table.loc[index, 'dest_ip']
+        except KeyError:
+            return None
     
     def delete_item(self, dest_net : str, net_mask : int):
         """ 删除一个表项 TODO:没有处理表格中不存在这一项的情况""" 
