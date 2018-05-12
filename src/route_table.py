@@ -1,5 +1,11 @@
 import pandas as pd
 class RouteTable():
+    """
+    逻辑：使用索引，找到子网/掩码对应的项，直接返回
+    不足：真正的转发表应该是寻找最长匹配，找到最适合这个子网的ip来返回
+    并且表中还需要有这一项 ‘0.0.0.0,/0’这样无论是哪一个子网和掩码都会匹配到这一项
+    从而避免转发表找不到的情况（相当于默认路由）
+    """
     def __init__(self, csv_file_name='', local_link_list=''):
         """ pandas的Dataframe，会更加好用一些 :-) """
         if csv_file_name == '':
@@ -36,9 +42,12 @@ class RouteTable():
         self.route_table.loc[index] = [dest_net, net_mask, dest_ip]
 
     def get_dest_ip(self, dest_net :str, net_mask : int):
-        """ 传入子网, 得到下一跳ip """
+        """
+        传入子网, 得到下一跳ip 
+        如果表中没有这一项 ,处理KeyError异常，返回None
+        """
         # 如果传入了本地直连的子网，会返回'on-link'
-        # 如果表中没有这一项
+        
         index = self.get_index(dest_net, net_mask)
         try:
             return self.route_table.loc[index, 'dest_ip']
