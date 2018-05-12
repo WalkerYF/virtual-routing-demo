@@ -39,7 +39,7 @@ while True:
     time.sleep(0.1)
     network_layer_listener = NetworkLayerListener()
     network_layer_listener.start()
-    s = input()
+    s = input('Route {} > '.format(network_layer.name))
     print(s)
     if s == 'show interface':
         route.link_layer.show_interface()
@@ -51,7 +51,7 @@ while True:
         dest_net = input('dest_net : ')
         net_mask = input('net_mask : ')
         next_ip = input('next_ip : ')
-        route.my_route_table.update_item(dest_net, net_mask, next_ip)
+        route.my_route_table.update_item(dest_net, int(net_mask), next_ip)
     elif s == 'send':
         src_ip = input('src_ip : ')
         final_ip = input('final_ip :')

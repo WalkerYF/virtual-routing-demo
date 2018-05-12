@@ -1,0 +1,61 @@
+{
+    "name": "C", 
+    "index": 2,
+    "interfaces": [
+        {
+            "vip": "7.7.2.2",
+            "netmask": 24,
+            "counter_vip": "7.7.2.1",
+            "counter_netmask": 24,
+            "pip": "127.0.0.1",
+            "port": 7022,
+            "counter_pip": "127.0.0.1",
+            "counter_port": 7021,
+            "counter_index": 0
+        },
+        {
+            "vip": "7.7.3.1",
+            "netmask": 24,
+            "counter_vip": "7.7.3.2",
+            "counter_netmask": 24,
+            "pip": "127.0.0.1",
+            "port": 7031,
+            "counter_pip": "127.0.0.1",
+            "counter_port": 7032,
+            "counter_index": 1
+        },
+        {
+            "vip": "7.7.5.1",
+            "netmask": 24,
+            "counter_vip": "7.7.5.2",
+            "counter_netmask": 24,
+            "pip": "127.0.0.1",
+            "port": 7051,
+            "counter_pip": "127.0.0.1",
+            "counter_port": 7052,
+            "counter_index": 4
+        },
+        {
+            "vip": "7.7.8.1",
+            "netmask": 24,
+            "counter_vip": "7.7.8.2",
+            "counter_netmask": 24,
+            "pip": "127.0.0.1",
+            "port": 7081,
+            "counter_pip": "127.0.0.1",
+            "counter_port": 7082,
+            "counter_index": 3
+        },
+        {
+            "vip": "7.7.6.1",
+            "netmask": 24,
+            "counter_vip": "7.7.6.2",
+            "counter_netmask": 24,
+            "pip": "127.0.0.1",
+            "port": 7061,
+            "counter_pip": "127.0.0.1",
+            "counter_port": 7062,
+            "counter_index": 5
+        }
+    ]
+}

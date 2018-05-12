@@ -1,0 +1,28 @@
+{
+    "name": "F", 
+    "index": 5,
+    "interfaces": [
+        {
+            "vip": "7.7.6.2",
+            "netmask": 24,
+            "counter_vip": "7.7.6.1",
+            "counter_netmask": 24,
+            "pip": "127.0.0.1",
+            "port": 7062,
+            "counter_pip": "127.0.0.1",
+            "counter_port": 7061,
+            "counter_index": 2
+        },
+        {
+            "vip": "7.7.7.2",
+            "netmask": 24,
+            "counter_vip": "7.7.7.1",
+            "counter_netmask": 24,
+            "pip": "127.0.0.1",
+            "port": 7072,
+            "counter_pip": "127.0.0.1",
+            "counter_port": 7071,
+            "counter_index": 3
+        }
+    ]
+}
