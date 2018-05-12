@@ -180,7 +180,7 @@ class DataLinkLayer():
             1. dest这个参数似乎没用上
         """
         pkg = IP_Package.bytes_package_to_objdect(ip_pkg)
-        ip1 = pkg.src_ip
+        ip1 = pkg.dest_ip
         nm = pkg.net_mask
     # def send(self, src, dest, ip_pkg):
     #     ip1, nm1 = src
@@ -190,11 +190,11 @@ class DataLinkLayer():
     #         raise Exception("{} and {} not in same subnet".format(nm1, nm2))
         subnet_prefix = get_subnet(ip1, nm)
         send_OK = False
-        # 实现了：找到源ip对应子网，再从子网中找到对应host，然后就直接调用这个host的send
+        # 实现了：找到目的ip对应子网，再从子网中找到对应host，然后就直接调用这个host的send
         for subnet in self.subnets:
             if subnet.prefix == subnet_prefix:
                 for host in subnet.hosts:
-                    if host.vip == ip1 and host.netmask == nm:
+                    if host.counter_vip == ip1 and host.netmask == nm:
                         rsock = rdt_socket.rdt_socket(host.counter_socket)
                         rsock.sendBytes(ip_pkg)
                         send_OK = True
