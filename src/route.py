@@ -70,15 +70,16 @@ class TransmitThread(threading.Thread):
 
     def ip_package_handler(self, ip_pkg : 'IP_Package'):
         """ 
-        使用转发表对IP包进行处理，使用目的ip获得其下一跳ip:dest_ip
-        并修改相应字段，返回一个新的IP包(bytes)用于转发，
+        使用转发表对IP包进行处理
+        1. 使用目的ip获得其下一跳ip:dest_ip
+        2. 使用其目的ip，获取目的子网掩码
         """
-        # 获得最终目的IP所在子网
-        dest_net = utilities.get_subnet(ip_pkg.final_ip, ip_pkg.net_mask)
-        # 从转发表中获得去往该子网需要的下一跳路由
-        next_ip = my_route_table.get_dest_ip(dest_net, ip_pkg.net_mask)
+        final_ip = ip_pkg.final_ip
+        # 从转发表中获得去往该子网需要的下一跳路由和路由所在子网
+        dest_ip_net_mask = my_route_table.get_dest_ip(final_ip)
         # 修改ip包的下一跳路由
-        ip_pkg.dest_ip = next_ip
+        ip_pkg.dest_ip = dest_ip_net_mask[0]
+        ip_pkg.net_mask = dest_ip_net_mask[1]
         return ip_pkg
 
 class MonitorLinkLayer(threading.Thread):
@@ -135,7 +136,7 @@ class NetworkLayer():
         local_direct_link = []
         for intf in config['interfaces']:
             # 得到本地端口地址
-            local_link_list.append((intf['vip'], 32))
+            local_link_list.append(intf['vip'])
             # 得到本地连接子网
             local_direct_link.append((utilities.get_subnet(intf['vip'], intf['netmask']), intf['netmask'], intf['counter_vip']))
         # 初始化转发表，在转发表中写入本机ip以及本机相连子网
@@ -157,8 +158,11 @@ class NetworkLayer():
             interfaces.append(new_interface)
         link_layer.host_register(interfaces)
 
-    def send(self, ip_package : bytes):
+    def send(self, ip_package_data : bytes, src_ip : str,  final_ip : str):
         """ 只需要将这个包放到队列中即可，另一个线程负责队列中的包处理并发送出去 """
+        # 应用层应该只需要知道目的IP就好了，然后源ip在网络层中获取，子网掩码和目的ip由转发表设置
+        # 这里ip包的子网掩码是目的网络的子网掩码，应用层是不知道的
+        ip_pkb = IP_Package(src_ip, final_ip, final_ip, 0, ip_package_data)
         route_send_package.put(ip_package)
 
     def recv(self) -> bytes :
