@@ -14,7 +14,7 @@ network_layer = route.NetworkLayer(config)
 # route.my_route_table.update_item('8.8.4.0', 24, '8.8.1.3')
 
 while True:
-    s = input()
+    s = input('Route {} > '.format(network_layer.name))
     print(s)
     if s == 'show interface':
         route.link_layer.show_interface()
