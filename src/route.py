@@ -162,4 +162,9 @@ if __name__ == "__main__":
     while True:
         s = input("Route {} >".format(route.name))
         print(s)
-        route.test_send(s)
+        if s == 'show ipv4 interface':
+            link_layer.show()
+        elif s == 'show tcp':
+            link_layer.show_tcp()
+        else:
+            route.test_send(s)

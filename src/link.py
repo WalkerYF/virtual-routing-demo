@@ -4,6 +4,7 @@ import config
 import threading
 import logging
 import queue
+from prettytable import PrettyTable 
 from include import rdt_socket
 from include.utilities import get_subnet
 from include.utilities import IP_Package
@@ -208,3 +209,32 @@ class DataLinkLayer():
             return None
         else:
             return link_buf.get()
+    
+    def show(self):
+        """
+        打印链路层信息，说明每个网线接口的状态
+        格式：
+        | vip | net_mask | counter_vip | status |
+        """
+        x = PrettyTable(["vip", "net_mask", "counter_vip", "status"])  
+        # x.align["City name"] = "l"# Left align city names
+        x.padding_width = 1# One space between column edges and contents (default)
+        for sub_net in self.subnets:
+            for host in sub_net.hosts:
+                x.add_row([host.vip, host.netmask, host.counter_vip, host.status])  
+        print(x)
+
+    def show_tcp(self):
+        """
+        打印用于模拟线路层的tcp信息，说明每个端口的状态
+        格式：
+        | pip | port | counter_pip | counter_port | status |
+        """
+        x = PrettyTable(["pip", "port", "counter_pip", "counter_port", "status"])  
+        # x.align["City name"] = "l"# Left align city names
+        x.padding_width = 1# One space between column edges and contents (default)
+        for sub_net in self.subnets:
+            for host in sub_net.hosts:
+                x.add_row([host.pip_port[0], host.pip_port[1], host.counter_pip_port[0], host.counter_pip_port[1],host.status])  
+        print (x)
+
