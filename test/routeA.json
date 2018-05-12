@@ -10,7 +10,8 @@
             "pip": "127.0.0.1",
             "port": 6012,
             "counter_pip": "127.0.0.1",
-            "counter_port": 6013
+            "counter_port": 6013,
+            "counter_index": 4
         },
         {
             "vip": "8.8.2.2",
@@ -20,7 +21,8 @@
             "pip": "127.0.0.1",
             "port": 6022,
             "counter_pip": "127.0.0.1",
-            "counter_port": 6023
+            "counter_port": 6023,
+            "counter_index": 3
         },
         {
             "vip": "8.8.3.2",
@@ -30,7 +32,8 @@
             "pip": "127.0.0.1",
             "port": 6032,
             "counter_pip": "127.0.0.1",
-            "counter_port": 6033
+            "counter_port": 6033,
+            "counter_index": 2
         }
     ]
 }

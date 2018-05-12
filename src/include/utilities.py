@@ -91,9 +91,8 @@ class IP_Package():
     def __repr__(self):
         return self.__str__()
         
-    # TODO: objdect 打错了，应为object
     @staticmethod
-    def bytes_package_to_objdect(ip_pkg : bytes) -> 'IP_Package':
+    def bytes_package_to_object(ip_pkg : bytes) -> 'IP_Package':
         """ 将一个bytes格式的IP包转成易操作的对象 """
         net_mask = struct.unpack_from('!H', ip_pkg, 10)[0]
         src_ip = bytes_ip_to_str(ip_pkg[12:16])
@@ -143,6 +142,6 @@ if __name__ == '__main__':
     test_binary_ip_pkg = test_ip_pkg.to_bytes()
     print(test_binary_ip_pkg)
 
-    test_after_ip_pkg = IP_Package.bytes_package_to_objdect(test_binary_ip_pkg)
+    test_after_ip_pkg = IP_Package.bytes_package_to_object(test_binary_ip_pkg)
     print(test_after_ip_pkg)
 

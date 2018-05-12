@@ -52,7 +52,7 @@ class TransmitThread(threading.Thread):
                 continue
             # 从队列中获得一个包
             send_package = route_send_package.get()
-            ip_package = IP_Package.bytes_package_to_objdect(send_package)
+            ip_package = IP_Package.bytes_package_to_object(send_package)
 
             # DEBUG信息
             logger.debug(' this package will be modiflied according to route table !')
@@ -92,7 +92,7 @@ class MonitorLinkLayer(threading.Thread):
             if recv_data == None:
                 continue
             # 查看该包是否是发给本机的
-            ip_package = IP_Package.bytes_package_to_objdect(recv_data)
+            ip_package = IP_Package.bytes_package_to_object(recv_data)
             is_local = my_route_table.is_local_link(ip_package.final_ip)
             if is_local:
                 # 网络层要了IP包，并交给了更上层的协议

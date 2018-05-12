@@ -51,10 +51,10 @@ class Host(threading.Thread):
         while True:
             data = rdt_s.recvBytes()
             # TODO:应该直接将二进制对象放到队列中
-            # pkg = IP_Package.bytes_package_to_objdect(data)
+            # pkg = IP_Package.bytes_package_to_object(data)
             link_buf.put(data)
             logger.info('--------------------------------------------------')
-            logger.debug("Link layer pkg received\n{}".format(IP_Package.bytes_package_to_objdect(data)))
+            logger.debug("Link layer pkg received\n{}".format(IP_Package.bytes_package_to_object(data)))
             logger.info('--------------------------------------------------')
             #TODO: not finished 还需要做拔网线？？
 
@@ -180,7 +180,7 @@ class DataLinkLayer():
         注意：
             1. dest这个参数似乎没用上
         """
-        pkg = IP_Package.bytes_package_to_objdect(ip_pkg)
+        pkg = IP_Package.bytes_package_to_object(ip_pkg)
         ip1 = pkg.dest_ip
         nm = pkg.net_mask
     # def send(self, src, dest, ip_pkg):
