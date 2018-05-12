@@ -52,8 +52,9 @@ class TransmitThread(threading.Thread):
             while route_send_package.qsize() == 0:
                 continue
             # 从队列中获得一个包
-            send_package = route_send_package.get()
-            ip_package = IP_Package.bytes_package_to_object(send_package)
+            #send_package = route_send_package.get()
+            #ip_package = IP_Package.bytes_package_to_object(send_package)
+            ip_package = route_send_package.get()
 
             # DEBUG信息
             logger.debug(' this package will be modiflied according to route table !')
