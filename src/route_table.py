@@ -46,8 +46,8 @@ class RouteTable():
         index = self.get_index(dest_net, net_mask)
         self.route_table.drop(index, inplace=True)
     
-    def is_local_link(self, dest_net : str, net_mask : int) -> bool:
-        """ 检测这个是不是本地链路已连接的子网 """
+    def is_local_link(self, dest_net : str, net_mask : int=32) -> bool:
+        """ 检测这个是不是本地链路的ip，应该直接拿完整的ip地址进行比较 """
         gateway = self.get_dest_ip(dest_net, net_mask)
         return gateway == 'on-link'
 
@@ -65,9 +65,9 @@ class RouteTable():
 
 if __name__ == '__main__':
     local_link_net = [
-        ('8.8.8',24),
-        ('8.8.1',24),
-        ('8.8.2',24),
+        ('8.8.8.1',32),
+        ('8.8.1.1',32),
+        ('8.8.2.1',32),
     ]
     init_net = [
         ('8.8.8',24, '8.8.1.2'),
@@ -80,6 +80,7 @@ if __name__ == '__main__':
     init.show()
 
     t = RouteTable(local_link_list=local_link_net)
+    t.init_item(init_net)
 
     t.show()
 
@@ -109,9 +110,9 @@ if __name__ == '__main__':
 
     print(t.get_dest_ip('8.8.8', 24))
 
-    print("\nafter :(t.is_local_link('8.8.8', 24)")
+    print("\nafter :(t.is_local_link('8.8.8.1')")
 
-    print(t.is_local_link('8.8.8', 24))
+    print(t.is_local_link('8.8.8.1'))
 
     print("\nafter :(t.is_local_link('8.8.1', 24)")
 
