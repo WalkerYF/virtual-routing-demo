@@ -210,7 +210,7 @@ class DataLinkLayer():
         else:
             return link_buf.get()
     
-    def show(self):
+    def show_interface(self):
         """
         打印链路层信息，说明每个网线接口的状态
         格式：

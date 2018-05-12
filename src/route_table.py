@@ -123,6 +123,7 @@ def bits_ip_to_str(bit_ip : bitarray) -> str:
 def net_mask_to_bits(net_mask : int) -> bitarray:
     """ 将数字类型的子网掩码变为比特型的，方便之后比较 """
     # TODO:常量：ip长32比特
+    net_mask = int(net_mask)
     bit_list = '1' * net_mask + '0' * (32-net_mask)
     return bitarray(bit_list)
 
