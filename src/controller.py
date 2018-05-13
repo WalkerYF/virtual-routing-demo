@@ -55,11 +55,14 @@ class NetworkLayerListener(threading.Thread):
                 time.sleep(0.01)
                 continue
             if ospf_pkg:
+                src_ip = ospf_pkg.dest_ip
+                dest_ip = ospf_pkg.src_ip
+                netmask = ospf_pkg.net_mask
                 if ospf_pkg.protocol != 119:
                     logger.error('error! get ospf pkg, protocol is %d instead of 119', ospf_pkg.protocol)
                 ospf_msg = utilities.objDecode(ospf_pkg.data)
-                #TODO: here
                 logger.info("get ospf msg\n%s", ospf_msg)
+
                 if ospf_msg['code'] == 0:
                     if not is_controller:
                         logger.warn("IM NOT CONTROLLER. get request msg. ignore.")
@@ -67,6 +70,24 @@ class NetworkLayerListener(threading.Thread):
                     src_index = ospf_msg['src_index']
                     init_global_route_table(GLOBAL_ROUTE_INFORMATIOIN_FILE, src_index)
                     sp = calculate_shortest_path(src_index)
+                    response_msg = {
+                        "code": 1,
+                        "msg": "here's your route table",
+                        "route_table": sp
+                    }
+                    response_msg_bytes = utilities.objEncode(response_msg)
+                    pkg = route.IP_Package(src_ip, dest_ip, dest_ip, netmask, response_msg_bytes)
+                    pkg.protocol = 119
+                    errno = route.link_layer.send(pkg.to_bytes())
+                    if errno < 0:
+                        logger.warning('fail to send to link layer. errno is %d\n', errno)
+                elif ospf_msg['code'] == 1:
+                    logger.info('get route table response msg\n%s', ospf_msg)
+                    route_table = ospf_msg['route_table']
+                    for dest_net, netmask, dest_ip in route_table:
+                        route.my_route_table.update_item(dest_net, netmask, dest_ip)
+
+
 
 
             if ordinary_pkg:
