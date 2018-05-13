@@ -189,7 +189,7 @@ class NetworkLayer():
         ip_pkg = IP_Package(src_ip, final_ip, final_ip, 0, ip_package_data)
         route_send_package.put(ip_pkg)
 
-    def recv(self) -> IP_Package :
+    def recv(self) -> Optional[IP_Package] :
         """ 非阻塞式接受IP包，该IP包一定是发给自己，需要处理的 如果没有收到，返回None，注意判断 """
         if route_recv_package.qsize() == 0:
             return None

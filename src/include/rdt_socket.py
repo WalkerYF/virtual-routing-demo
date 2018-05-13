@@ -19,7 +19,7 @@ logging.basicConfig(
     # datefmt='%M:%S',
 )
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.CRITICAL)
 
 # from client_config import *
 FILE_HEADER_SIZE = 8
