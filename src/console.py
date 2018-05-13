@@ -14,8 +14,6 @@ from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.contrib.completers import WordCompleter
 
-import route
-
 # 初始化日志
 logging.basicConfig(
     # filename='../../log/client.{}.log'.format(__name__),
@@ -24,12 +22,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-
-# 初始化网络层(内部还会初始化链路层)
-config_name = sys.argv[1]
-with open(config_name, 'r') as config_f:
-    config = json.load(config_f)
-
 
 
 # NOTICE:如果需要使用终端，将以下代码复制到对应脚本的if __name__ == '__main__':下，并且import上面的库
@@ -96,6 +88,11 @@ class Console():
                         print(ip_pkg)
                 elif main_action == 'quit':
                     os._exit(0)
+                elif main_action == 'debug':
+                    if user_args[1] == 'start':
+                        logger.disabled = False
+                    if user_args[1] == 'stop':
+                        logger.disabled = True
             except IndexError:
                 print('invalid command!')
                 continue
@@ -105,10 +102,15 @@ class Console():
                 continue
 
 
-def main():
+
+if __name__ == "__main__":
+    # 如果是作为模块被别的模块使用，就最好不要导入其他的名称空间了
+    import route
+    # 初始化网络层(内部还会初始化链路层)
+    config_name = sys.argv[1]
+    with open(config_name, 'r') as config_f:
+        config = json.load(config_f)
+
     network_layer = route.NetworkLayer(config)
     console = Console(network_layer, route)
     console.task()
-
-if __name__ == "__main__":
-    main()
