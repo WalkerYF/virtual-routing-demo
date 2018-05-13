@@ -82,6 +82,9 @@ while True:
     except IndexError:
         print('invalid command!')
         continue
-
+    except Exception as e:
+        # print ('e.message:\t{}'.format(e.message))
+        print(traceback.format_exc())
+        continue
 
 
