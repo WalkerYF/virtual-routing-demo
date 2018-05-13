@@ -1,5 +1,6 @@
 import queue
 import logging
+from typing import Tuple, List
 
 MAX_INT = 1e10
 
@@ -11,13 +12,14 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
-def SPFA(graph, src):
+def SPFA(graph: List[List[int]], src : int) -> Tuple[List[int], List[int]]:
     '''
-    input: 
+    input:
         graph: a list of list, adjacent table
         src: an integer(base 0), the source node
-    output: 
+    output:
         a list, the ith item is the distance from src to i
+        a list, the previous node that is in the shortest path
     '''
     V = len(graph)
     min_distance = [MAX_INT for i in range(V)]

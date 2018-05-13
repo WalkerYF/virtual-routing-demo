@@ -12,7 +12,9 @@
             "pip": "127.0.0.1",
             "port": 6013,
             "counter_pip": "127.0.0.1",
-            "counter_port": 6012
+            "counter_port": 6012,
+            "counter_index": 0,
+            "weight": 1
         },
         {
             "counter_name": "B",
@@ -24,7 +26,9 @@
             "pip": "127.0.0.1",
             "port": 6043,
             "counter_pip": "127.0.0.1",
-            "counter_port": 6042
+            "counter_port": 6042,
+            "counter_index": 1,
+            "weight": 1
         }
     ]
 }

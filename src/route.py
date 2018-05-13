@@ -125,9 +125,8 @@ my_monitor_link_layer = MonitorLinkLayer()
 
 class NetworkLayer():
     def __init__(self, config) -> None:
-        # TODO:这里有两种方案，一种是传json字符串，另一种是传文件名，然后就可以在路由器内部进行读取配置文件初始化
+        # NOTICE:这里有两种方案，一种是传json字符串，另一种是传文件名，然后就可以在路由器内部进行读取配置文件初始化
         # 从配置文件中初始化各项数据
-        # TODO:(YB)在这里传入文件名。用文件名初始化my_route_table.
         self.name = config['name']
         self.index = config['index']
 
@@ -141,15 +140,8 @@ class NetworkLayer():
         self.interfaces = []
         self.init_interfaces(config)
 
-        # f = open('matrix_topo.dump', 'rb')
-        # graph = pickle.load(f)
-        # f.close()
+        # 使用文件来初始化route_table的所有信息。
 
-        # logger.debug(graph)
-        # self.shortestPath, self.previous_node = shortestPath.SPFA(graph, self.index)
-        # logger.debug(self.shortestPath)
-        # logger.debug(self.previous_node)
-        # logger.debug(self.index2ip)
 
     def init_route_table(self, config):
         """ 初始化路由表，写入本地链路地址以及直连子网地址 """

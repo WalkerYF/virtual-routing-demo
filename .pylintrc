@@ -15,7 +15,7 @@ ignore-patterns=
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
-init-hook='import sys; sys.path.append("/home/yb/Documents/Projects/virtual-routing-demo")'
+init-hook='import sys; sys.path.append("/home/yb/Documents/Projects/virtual-routing-demo/src")'
 
 # Use multiple processes to speed up Pylint.
 jobs=1
@@ -265,7 +265,9 @@ good-names=i,
            k,
            ex,
            Run,
-           _
+           _,
+           logger,
+           f
 
 # Include a hint for the correct naming format with invalid-name
 include-naming-hint=no
