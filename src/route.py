@@ -127,6 +127,7 @@ class NetworkLayer():
     def __init__(self, config) -> None:
         # TODO:这里有两种方案，一种是传json字符串，另一种是传文件名，然后就可以在路由器内部进行读取配置文件初始化
         # 从配置文件中初始化各项数据
+        # TODO:(YB)在这里传入文件名。用文件名初始化my_route_table.
         self.name = config['name']
         self.index = config['index']
 
