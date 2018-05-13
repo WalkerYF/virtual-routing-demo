@@ -3,6 +3,7 @@
     "index": 0,
     "interfaces": [
         {
+            "cost": 1,
             "vip": "7.7.1.1",
             "netmask": 24,
             "counter_vip": "7.7.1.2",
@@ -11,9 +12,11 @@
             "port": 7011,
             "counter_pip": "127.0.0.1",
             "counter_port": 7012,
-            "counter_index": 1
+            "counter_index": 1,
+            "counter_name": "B"
         },
         {
+            "cost": 1,
             "vip": "7.7.2.1",
             "netmask": 24,
             "counter_vip": "7.7.2.2",
@@ -22,7 +25,8 @@
             "port": 7021,
             "counter_pip": "127.0.0.1",
             "counter_port": 7022,
-            "counter_index": 2
+            "counter_index": 2,
+            "counter_name": "C"
         }
     ]
 }
