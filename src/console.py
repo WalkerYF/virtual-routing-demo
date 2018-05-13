@@ -42,7 +42,6 @@ while True:
                         auto_suggest=AutoSuggestFromHistory(),
                         completer=Completer,
                         )
-
     # 拆分用户参数
     user_args = user_input.split(' ')
     main_action = user_args[0]
