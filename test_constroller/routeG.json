@@ -1,0 +1,20 @@
+{
+    "name": "G", 
+    "index": 6,
+    "interfaces": [
+        {
+            "cost": 1,
+            "vip": "7.7.0.2",
+            "netmask": 24,
+            "counter_vip": "7.7.0.1",
+            "counter_netmask": 24,
+            "pip": "127.0.0.1",
+            "port":7002,
+            "counter_pip": "127.0.0.1",
+            "counter_port":7001,
+            "counter_index": 4,
+            "counter_name": "E",
+            "weight": 1
+        }
+    ]
+}

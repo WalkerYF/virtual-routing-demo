@@ -1,0 +1,48 @@
+{
+    "name": "B", 
+    "index": 1,
+    "interfaces": [
+        {
+            "cost": 1,
+            "vip": "7.7.1.2",
+            "netmask": 24,
+            "counter_vip": "7.7.1.1",
+            "counter_netmask": 24,
+            "pip": "127.0.0.1",
+            "port": 7012,
+            "counter_pip": "127.0.0.1",
+            "counter_port": 7011,
+            "counter_index": 0,
+            "counter_name": "A",
+            "weight": 1
+        },
+        {
+            "cost": 1,
+            "vip": "7.7.3.2",
+            "netmask": 24,
+            "counter_vip": "7.7.3.1",
+            "counter_netmask": 24,
+            "pip": "127.0.0.1",
+            "port": 7032,
+            "counter_pip": "127.0.0.1",
+            "counter_port": 7031,
+            "counter_index": 2,
+            "counter_name": "C",
+            "weight": 1
+        },
+        {
+            "cost": 1,
+            "vip": "7.7.4.1",
+            "netmask": 24,
+            "counter_vip": "7.7.4.2",
+            "counter_netmask": 24,
+            "pip": "127.0.0.1",
+            "port": 7041,
+            "counter_pip": "127.0.0.1",
+            "counter_port": 7042,
+            "counter_index": 4,
+            "counter_name": "E",
+            "weight": 1
+        }
+    ]
+}
