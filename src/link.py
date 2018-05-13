@@ -204,7 +204,7 @@ class DataLinkLayer():
         for subnet in self.subnets:
             if subnet.prefix == subnet_prefix:
                 for host in subnet.hosts:
-                    if host.counter_vip == ip1 and host.netmask == nm:
+                    if (host.counter_vip == ip1 or host.vip == ip1) and host.netmask == nm:
                         try:
                             rsock = rdt_socket.rdt_socket(host.counter_socket)
                             rsock.sendBytes(ip_pkg)
