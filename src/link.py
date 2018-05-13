@@ -57,6 +57,8 @@ class Host(threading.Thread):
             # NOTICE:应该直接将二进制对象放到队列中
             # pkg = IP_Package.bytes_package_to_object(data)
             link_buf.put(data)
+            if IP_Package.bytes_package_to_object(data).protocol == 120:
+                continue
             logger.info('--------------------------------------------------')
             logger.info("Link layer pkg received\n{}".format(IP_Package.bytes_package_to_object(data)))
             logger.info('--------------------------------------------------')
@@ -204,6 +206,7 @@ class DataLinkLayer():
         for subnet in self.subnets:
             if subnet.prefix == subnet_prefix:
                 for host in subnet.hosts:
+                    # TODO:允许以出端口作为dest_ip
                     if host.counter_vip == ip1 and host.netmask == nm:
                         try:
                             rsock = rdt_socket.rdt_socket(host.counter_socket)

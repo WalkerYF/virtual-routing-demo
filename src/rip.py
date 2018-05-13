@@ -42,7 +42,7 @@ class RIP(threading.Thread):
         #已知的网络拓扑
         self.topo = {route_name: [(inf.vip, inf.netmask) for inf in interfaces]}
         self.direct_routes = [intf.counter_name for intf in interfaces]
-        self.next_hop = {intf.counter_name: intf.vip for intf in interfaces}
+        self.next_hop = {intf.counter_name: intf.counter_vip for intf in interfaces}
         self.received_set = set()
 
     def run(self):
@@ -138,7 +138,8 @@ class NetworkLayerListener(threading.Thread):
                 rip_msg = utilities.objDecode(pkg.data)
                 rip_worker.process(rip_msg)
             else:
-                route.route_recv_package.put(pkg)
+                logger.info("Received normal message {}".format(pkg))
+                # route.route_recv_package.put(pkg)
 
 if __name__ == "__main__":
 
