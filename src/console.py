@@ -6,6 +6,7 @@ from include.utilities import IP_Package
 import threading
 import logging
 import time
+import re
 from prompt_toolkit import prompt
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
@@ -44,35 +45,40 @@ while True:
                         completer=Completer,
                         )
     # 拆分用户参数
-    user_args = user_input.split(' ')
+    user_args = user_input.split()
+    logger.debug(user_args)
     main_action = user_args[0]
 
-    # 解析参数
-    if main_action == 'show':
-        if user_args[1] == 'interface':
-            route.link_layer.show_interface()
-        elif user_args[1] == 'tcp':
-            route.link_layer.show_tcp()
-        elif user_args[1] == 'route':
-            route.my_route_table.show()
-        elif user_args[1] == 'help':
-            print('This is help message!')
-            for help_msg in help_menu:
-                print('-'*40)
-                print(help_msg)
-    elif main_action == 'add':
-        route.my_route_table.update_item(user_args[1], int(user_args[2]), user_args[3])
-    elif main_action == 'send':
-        network_layer.send(user_args[1], user_args[2], user_args[3].encode('ascii'))
-    elif main_action == 'recv':
-        # 非阻塞接受IP包
-        ip_pkg = network_layer.recv()
-        if ip_pkg == None:
-            print('no receive!')
-        else:
-            print(ip_pkg)
-    elif main_action == 'q':
-        os._exit(0)
+    try:
+        # 解析参数
+        if main_action == 'show':
+            if user_args[1] == 'interface':
+                route.link_layer.show_interface()
+            elif user_args[1] == 'tcp':
+                route.link_layer.show_tcp()
+            elif user_args[1] == 'route':
+                route.my_route_table.show()
+            elif user_args[1] == 'help':
+                print('This is help message!')
+                for help_msg in help_menu:
+                    print('-'*40)
+                    print(help_msg)
+        elif main_action == 'add':
+            route.my_route_table.update_item(user_args[1], int(user_args[2]), user_args[3])
+        elif main_action == 'send':
+            network_layer.send(user_args[1], user_args[2], user_args[3].encode('ascii'))
+        elif main_action == 'recv':
+            # 非阻塞接受IP包
+            ip_pkg = network_layer.recv()
+            if ip_pkg == None:
+                print('no receive!')
+            else:
+                print(ip_pkg)
+        elif main_action == 'q':
+            os._exit(0)
+    except IndexError:
+        print('invalid command!')
+        continue
 
 
 
