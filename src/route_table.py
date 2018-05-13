@@ -1,6 +1,7 @@
 import pandas as pd
 from typing import Tuple
 from bitarray import bitarray
+import traceback
 class RouteTable():
     """
     逻辑：使用索引，找到子网/掩码对应的项，直接返回
@@ -77,9 +78,13 @@ class RouteTable():
             return self.route_table.loc[dest_index, 'dest_ip'],self.route_table.loc[dest_index,'net_mask']
     
     def delete_item(self, dest_net : str, net_mask : int):
-        """ 删除一个表项 TODO:没有处理表格中不存在这一项的情况""" 
-        index = self.get_index(dest_net, net_mask)
-        self.route_table.drop(index, inplace=True)
+        """ 删除一个表项 处理了表格中不存在这一项的情况，会直接打印错误信息，然后不管""" 
+        try :
+            index = self.get_index(dest_net, net_mask)
+            self.route_table.drop(index, inplace=True)
+        except Exception as e:
+            # print ('e.message:\t{}'.format(e.message))
+            print(traceback.format_exc())
     
     def is_local_link(self, dest_net : str, net_mask : int=32) -> bool:
         """ 检测这个是不是本地链路的ip，应该直接拿完整的ip地址进行比较 """
