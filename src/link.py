@@ -192,6 +192,7 @@ class DataLinkLayer():
         注意：
             1. dest这个参数似乎没用上
         """
+        logger.debug("in link, DataLinkLayer, sending\n%s", ip_pkg)
         pkg = IP_Package.bytes_package_to_object(ip_pkg)
         ip1 = pkg.dest_ip
         nm = pkg.net_mask
