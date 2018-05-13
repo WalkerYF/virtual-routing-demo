@@ -1,0 +1,15 @@
+{
+      // Customize keywords and colors. Any css color identifier is valid.
+      "todohighlight.keywords": [
+        {
+            "text": "notice:",
+            "color": "#FFFFFF",
+            "backgroundColor": "green"
+        },
+        {
+            "text": "NOTICE:",
+            "color": "#FFFFFF",
+            "backgroundColor": "green"
+        }
+    ]
+}
