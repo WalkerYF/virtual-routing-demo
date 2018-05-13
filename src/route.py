@@ -47,11 +47,15 @@ link_layer = link.DataLinkLayer()
 my_route_table = RouteTable()
 
 # 注意! 下面的两个队列存放对象，而不是二进制数据
-# 用来存储网络层需要向上传递的ip包
-route_recv_package = queue.Queue(0) # type: Queue[bytes]
-# 用来存储网络层需要发送的ip包
-route_send_package = queue.Queue(0) # type: Queue[bytes]
+# 用来存放rip协议的ip包
+rip_recv_package = queue.Queue(0) # type: Queue[IP_Package]
+# 用来存放ospf协议的ip包
+ospf_recv_package = queue.Queue(0) # type: Queue[IP_Package]
+# 用来存储网络层需要向上传递的普通ip包
+route_recv_package = queue.Queue(0) # type: Queue[IP_Package]
 
+# 用来存储网络层需要发送的ip包
+route_send_package = queue.Queue(0) # type: Queue[IP_Package]
 
 class PkgForwardThread(threading.Thread):
     """
@@ -119,7 +123,14 @@ class MonitorLinkLayer(threading.Thread):
             is_local = my_route_table.is_local_link(ip_package.final_ip)
             if is_local:
                 # 网络层要了IP包，并交给了更上层的协议
-                route_recv_package.put(ip_package)
+                if ip_package.protocol == 120:
+                    # RIP协议
+                    rip_recv_package.put(ip_package)
+                elif ip_package.protocol == 119:
+                    # OSPF协议
+                    ospf_recv_package.put(ip_package)
+                else :
+                    route_recv_package.put(ip_package)
             else:
                 # 网络层修改ip包，要转发
                 route_send_package.put(ip_package)
@@ -192,6 +203,20 @@ class NetworkLayer():
             return None
         else:
             return route_recv_package.get()
+
+    def recv_rip(self) -> Optional[IP_Package] :
+        """ 非阻塞式接受IP包(用于rip协议），如果没有收到，返回None，注意判断 """
+        if rip_recv_package.qsize() == 0:
+            return None
+        else:
+            return rip_recv_package.get()
+
+    def recv_ospf(self) -> Optional[IP_Package] :
+        """ 非阻塞式接受IP包(用于ospf协议），如果没有收到，返回None，注意判断 """
+        if ospf_recv_package.qsize() == 0:
+            return None
+        else:
+            return ospf_recv_package.get()
 
     def update_route_table(self):
         #TODO: here
