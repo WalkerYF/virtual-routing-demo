@@ -51,12 +51,12 @@ class RouteTable():
         传入最终目的IP, 得到下一跳ip
         如果传入了本地直连的子网，会返回'on-link'\n
         通过**最长匹配方法**得到下一跳路由
-        1. 取子网掩码与子网相与 与目的子网相等的
-        2. 取子网掩码最大的
+        1. 取子网掩码与子网相与  子网掩码与目的子网相与 如果是同一个子网，可用，到下一步继续判断
+        2. 目的子网与最终ip进行同或，计算前导1的个数，取最多的
         返回目的ip，及目的子网掩码
         """
         dest_index = None
-        max_net_mask = 0
+        max_match = 0
         for index, row in self.route_table.iterrows():
             # 表中迭代每一行进行判断
             # 目的IP与子网相于   与对应的子网掩码相等，说明该ip在该子网内
@@ -65,10 +65,13 @@ class RouteTable():
             final_ip_bits = str_ip_to_bits(final_ip)
             net_mask_bits = net_mask_to_bits(int(row.net_mask))
 
-            if net_mask_bits & final_ip_bits == dest_net_bits:
-                if max_net_mask < int(row.net_mask):
+            # 前提是，目的ip需要在对应的子网中
+            if final_ip_bits & net_mask_bits == dest_net_bits & net_mask_bits :
+                # final_ip与目的子网ip 同或，相同的位置为1，并且数前面的1的数量，一旦遇到0就不数
+                cur_match = count_one_until_zero(~final_ip_bits ^ dest_net_bits)
+                if max_match < cur_match:
                     dest_index = index
-                    max_net_mask = int(row.net_mask)
+                    max_match = cur_match
 
         if dest_index == None:
             # 说明转发表内没有该ip对应的子网的项
