@@ -1,6 +1,9 @@
 {
     "name": "A", 
     "index": 0,
+    "is_controller": false,
+    "controller_index": 2,
+    "controller_name": "C",
     "interfaces": [
         {
             "cost": 1,
