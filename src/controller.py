@@ -32,6 +32,16 @@ interface2index = {} # type: Dict[Tuple[str, str], int]
 index2interface = {} # type: Dict[int, Tuple[str, str]]
 
 is_controller = config_data['is_controller']
+
+# config_file中的内容是，所有test/route*.json的文件的文件名
+f = open(GLOBAL_ROUTE_INFORMATIOIN_FILE, 'rt')
+json_files = json.load(f)
+f.close()
+logger.debug("[controller] read all files\n %s ", format(json_files))
+
+V = len(json_files['filenames'])
+# graph 是用于求最短路的邻接矩阵
+graph = [[-1 for i in range(V)] for j in range(V)] # type: List[List[int]]
 class NetworkLayerListener(threading.Thread):
     def __init__(self, network_layer) -> None:
         threading.Thread.__init__(self)
@@ -46,7 +56,7 @@ class NetworkLayerListener(threading.Thread):
                 continue
             if ospf_pkg:
                 if ospf_pkg.protocol != 119:
-                    logger.error('error! get ospf pkg, protocol is %d instead of 119', pkg.protocol)
+                    logger.error('error! get ospf pkg, protocol is %d instead of 119', ospf_pkg.protocol)
                 ospf_msg = utilities.objDecode(ospf_pkg.data)
                 #TODO: here
                 logger.info("get ospf msg\n%s", ospf_msg)
@@ -55,27 +65,59 @@ class NetworkLayerListener(threading.Thread):
                         logger.warn("IM NOT CONTROLLER. get request msg. ignore.")
                         continue
                     src_index = ospf_msg['src_index']
-                    
+                    init_global_route_table(GLOBAL_ROUTE_INFORMATIOIN_FILE, src_index)
+                    sp = calculate_shortest_path(src_index)
+
 
             if ordinary_pkg:
                 #TODO: refine here
                 logger.info("get odinary msg\n%s", ordinary_pkg)
 
-def init_global_route_table(config_file: str) -> None:
+
+def calculate_shortest_path(src:int):
+    ret = []
+
+    dist, prev = shortestPath.SPFA(graph, src)
+    logger.debug("[controller] finished run spfa\n dist %s \n prev %s\n", dist, prev)
+    logger.debug("[controller, info] interface2index\n%s", interface2index)
+    logger.debug("[controller, info] index2interface\n%s", index2interface)
+
+    for ip, netmask in interface2index:
+        # 自己的端口不需要作转发
+        if interface2index[(ip, netmask)] == src:
+            continue
+        logger.debug('[controller] dealing with %s, %s', ip, netmask)
+        subnet = utilities.get_subnet(ip, netmask)
+        index = interface2index[(ip, netmask)]
+        prev_index = prev[index]
+        if prev_index == -1:
+            continue
+        if prev_index == src:
+            target_index = interface2index[(ip, netmask)]
+            (dst_ip, dst_nm) = index2interface[target_index]
+            # route.my_route_table.update_item(ip, netmask, dst_ip)
+            ret.append((ip, netmask, dst_ip))
+            logger.info('[1]add item into response msg\n \
+                %s, %s, %s', ip, netmask, dst_ip)
+        else:
+            try_get = index2interface.get(prev_index)
+            while try_get is None:
+                prev_index = prev[prev_index]
+                try_get = index2interface.get(prev_index)
+            prev_ip, prev_netmask = try_get
+            # route.my_route_table.update_item(ip, netmask, prev_ip)
+            ret.append((ip, netmask, prev_ip))
+            logger.info('[2]add item into response msg\n \
+                %s, %s, %s', ip, netmask, prev_ip)
+    logger.debug("calculation return value\n%s", ret)
+    return ret
+
+def init_global_route_table(config_file: str, src : int) -> None:
     """
     用SPFA算法，读取配置文件，更新路由表中的最短路信息
     input:
         config_file: 储存有“所有route配置文件的文件名”文件名
     """
-    # config_file中的内容是，所有test/route*.json的文件的文件名
-    f = open(config_file, 'rt')
-    json_files = json.load(f)
-    f.close()
-    logger.debug("[spfa] read all files\n %s ", format(json_files))
-
-    V = len(json_files['filenames'])
-    # graph 是用于求最短路的邻接矩阵
-    graph = [[-1 for i in range(V)] for j in range(V)] # type: List[List[int]]
     logger.debug("[spfa] init graph\n %s", format(graph))
     for filename in json_files['filenames']:
         f = open('../test_controller/' + filename) #TODO:(YB) refactor. let it be path.resolve
@@ -90,7 +132,7 @@ def init_global_route_table(config_file: str) -> None:
 
             # interface2index 记录了所有的interfaces.它是一个从interface到所属路由的映射。
             interface2index[(cvip, netmask)] = interface['counter_index']
-            if interface['counter_index'] == ROUTER_INDEX:
+            if interface['counter_index'] == src:
                 # index2interface， 
                 # idx -> intf
                 # 记录了，站在本路由的角度，到达idx这个路由，需要通过的intf是什么
@@ -104,32 +146,6 @@ def init_global_route_table(config_file: str) -> None:
                 logger.warning('no weight info in %s, %s defaut to 1', filename, interface)
             graph[node][inf_node] = weight
     logger.debug("[spfa] finished loading neighbour info into graph\n %s", format(graph))
-    dist, prev = shortestPath.SPFA(graph, ROUTER_INDEX)
-    logger.debug("[spfa] finished run spfa\n dist %s \n prev %s\n", dist, prev)
-    logger.debug("[spfa, info] interface2index\n%s", interface2index)
-    logger.debug("[spfa, info] index2interface\n%s", index2interface)
-
-    for ip, netmask in interface2index:
-        # 自己的端口不需要作转发
-        if interface2index[(ip, netmask)] == ROUTER_INDEX:
-            continue
-        logger.debug('[spfa] dealing with %s, %s', ip, netmask)
-        subnet = utilities.get_subnet(ip, netmask)
-        index = interface2index[(ip, netmask)]
-        prev_index = prev[index]
-        if prev_index == -1:
-            continue
-        if prev_index == ROUTER_INDEX:
-            target_index = interface2index[(ip, netmask)]
-            (dst_ip, dst_nm) = index2interface[target_index]
-            route.my_route_table.update_item(ip, netmask, dst_ip)
-            logger.info('[1]add item into route table\n \
-                %s, %s, %s', ip, netmask, dst_ip)
-        else:
-            prev_ip, prev_netmask = index2interface[prev_index]
-            route.my_route_table.update_item(ip, netmask, prev_ip)
-            logger.info('[2]add item into route table\n \
-                %s, %s, %s', ip, netmask, prev_ip)
     
 def ask_for_global_table():
     controller_index = config_data['controller_index']
@@ -164,8 +180,8 @@ def main():
     network_layer = route.NetworkLayer(config_data)
 
     if is_controller:
-        logger.debug("I am controller. begin to run shortest path")
-        init_global_route_table(GLOBAL_ROUTE_INFORMATIOIN_FILE)
+        logger.debug("I am controller. not calculate until asked")
+        #init_global_route_table(GLOBAL_ROUTE_INFORMATIOIN_FILE)
         
     network_layer_listener = NetworkLayerListener(network_layer)
     network_layer_listener.start()
