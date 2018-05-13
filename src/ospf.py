@@ -8,6 +8,7 @@ import logging
 import time
 from include import shortestPath
 from typing import Dict, List, Tuple
+import console
 GLOBAL_ROUTE_INFORMATION_FILE = '../test/all_route.json'
 config_name = sys.argv[1]
 with open(config_name, 'r') as config_f:
@@ -121,29 +122,6 @@ if __name__ == "__main__":
     network_layer_listener = NetworkLayerListener()
     network_layer_listener.start()
     init_global_route_table(network_layer, GLOBAL_ROUTE_INFORMATION_FILE)
-    while True:
-        time.sleep(0.1)
-        s = input('Route {} > '.format(network_layer.name))
-        print(s)
-        if s == 'show interface':
-            route.link_layer.show_interface()
-        elif s == 'show tcp':
-            route.link_layer.show_tcp()
-        elif s == 'show route table':
-            route.my_route_table.show()
-        elif s == 'add':
-            dest_net = input('dest_net : ')
-            net_mask = input('net_mask : ')
-            next_ip = input('next_ip : ')
-            route.my_route_table.update_item(dest_net, int(net_mask), next_ip)
-        elif s == 'send':
-            src_ip = input('src_ip : ')
-            final_ip = input('final_ip :')
-            data = input('data : ')
-            network_layer.send(src_ip,final_ip,data.encode('ascii'))
-        elif s == 'test add':
-            route.my_route_table.update_item('8.8.4.0',24,'8.8.1.3')
-        elif s == 'test send':
-            network_layer.send('8.8.1.2', '8.8.4.2', b'testtest!!!!')
-        else:
-            continue        
+
+    console = console.Console(network_layer, route)
+    console.task()

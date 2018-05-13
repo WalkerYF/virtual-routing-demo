@@ -146,6 +146,7 @@ class NetworkLayer():
         self.index = config['index']
 
         # 开启转发线程
+        logger.debug('my_package_forward_thread start!')
         my_package_forward_thread.start()
         # 开启链路层监听线程，用于从链路层得到包
         my_monitor_link_layer.start()
