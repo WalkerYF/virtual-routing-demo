@@ -187,10 +187,11 @@ class NetworkLayer():
         route_send_package.put(ip_pkg)
 
     def recv(self) -> bytes :
-        """ 阻塞式接受IP包，该IP包一定是发给自己，需要处理的 """
-        while route_recv_package.qsize == 0:
-            continue
-        return route_recv_package.get()
+        """ 非阻塞式接受IP包，该IP包一定是发给自己，需要处理的 如果没有收到，返回None，注意判断 """
+        if route_recv_package.qsize() == 0:
+            return None
+        else:
+            return route_recv_package.get()
 
     def update_route_table(self):
         #TODO: here
