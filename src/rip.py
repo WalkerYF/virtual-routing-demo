@@ -41,7 +41,7 @@ class RIP(threading.Thread):
             for intf in interfaces}
         #已知的网络拓扑
         self.topo = {route_name: [(inf.vip, inf.netmask) for inf in interfaces]}
-
+        self.direct_routes = [intf.counter_name for intf in interfaces]
         self.next_hop = {intf.counter_name: intf.vip for intf in interfaces}
         self.received_set = set()
 
@@ -50,7 +50,7 @@ class RIP(threading.Thread):
         while True:
             logger.debug("[RIP] Broadcasting RIP msg")
             self.broadcast(self.interfaces)
-            time.sleep(1)
+            time.sleep(10)
 
     def broadcast(self, interfaces):
         md5 = hashlib.md5()
@@ -75,6 +75,10 @@ class RIP(threading.Thread):
             if dest not in self.topo:
                 self.topo[dest] = intfs
                 logger.info("[RIP] learned topo of {} : {}".format(dest, intfs))
+                if dest in self.direct_routes:
+                    for vip, netmask in intfs:
+                        logger.info("[RIP] Updating route table\n{} {} THROUTH {}".format(vip, netmask, self.next_hop[dest]))
+                        route.my_route_table.update_item(vip, netmask, self.next_hop[dest])
         # if medium not in self.topo.keys():
         #     self.topo[medium] = rip_msg['intfs']
         if rip_msg['md5'] in self.received_set:
@@ -133,6 +137,8 @@ class NetworkLayerListener(threading.Thread):
             if(pkg.protocol == 120):
                 rip_msg = utilities.objDecode(pkg.data)
                 rip_worker.process(rip_msg)
+            else:
+                route.route_recv_package.put(pkg)
 
 if __name__ == "__main__":
 
