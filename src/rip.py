@@ -137,12 +137,7 @@ class NetworkLayerListener(threading.Thread):
             if(pkg.protocol == 120):
                 rip_msg = utilities.objDecode(pkg.data)
                 rip_worker.process(rip_msg)
-<<<<<<< HEAD
             # else:
-=======
-            else:
-                logger.info("Received normal message {}".format(pkg))
->>>>>>> 3fe368625d012eb089f29fe3d2cada6da2f965a9
                 # route.route_recv_package.put(pkg)
 
 if __name__ == "__main__":
