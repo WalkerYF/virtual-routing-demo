@@ -29,7 +29,6 @@ logger.setLevel(logging.DEBUG)
 config_name = sys.argv[1]
 with open(config_name, 'r') as config_f:
     config = json.load(config_f)
-# network_layer = route.NetworkLayer(config)
 
 
 
@@ -90,7 +89,7 @@ class Console():
                     self.network_layer.send(user_args[1], user_args[2], user_args[3].encode('ascii'))
                 elif main_action == 'recv':
                     # 非阻塞接受IP包
-                    ip_pkg = network_layer.recv()
+                    ip_pkg = self.network_layer.recv()
                     if ip_pkg == None:
                         print('no receive!')
                     else:
@@ -107,6 +106,7 @@ class Console():
 
 
 def main():
+    network_layer = route.NetworkLayer(config)
     console = Console(network_layer, route)
     console.task()
 
