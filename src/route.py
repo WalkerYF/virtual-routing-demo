@@ -131,6 +131,7 @@ class NetworkLayer():
     def __init__(self, config) -> None:
         # TODO:这里有两种方案，一种是传json字符串，另一种是传文件名，然后就可以在路由器内部进行读取配置文件初始化
         # 从配置文件中初始化各项数据
+        # TODO:(YB)在这里传入文件名。用文件名初始化my_route_table.
         self.name = config['name']
         self.index = config['index']
 
@@ -193,7 +194,7 @@ class NetworkLayer():
         ip_pkg = IP_Package(src_ip, final_ip, final_ip, 0, ip_package_data)
         route_send_package.put(ip_pkg)
 
-    def recv(self) -> IP_Package :
+    def recv(self) -> Optional[IP_Package] :
         """ 非阻塞式接受IP包，该IP包一定是发给自己，需要处理的 如果没有收到，返回None，注意判断 """
         if route_recv_package.qsize() == 0:
             return None

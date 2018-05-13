@@ -11,5 +11,9 @@
             "color": "#FFFFFF",
             "backgroundColor": "green"
         }
-    ]
+    ],
+    "python.pythonPath": "/usr/bin/python3",
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.mypyEnabled": false
 }
