@@ -65,6 +65,8 @@ class PkgForwardThread(threading.Thread):
         while True:
             # 如果队列为空，那就等直到队列中有包
             while route_send_package.qsize() == 0:
+                # NOTICE:此处循环可能会导致性能下降，CPU占用率100%
+                time.sleep(0.2)
                 continue
             # 从队列中获得一个包
             ip_package = route_send_package.get()
@@ -109,6 +111,8 @@ class MonitorLinkLayer(threading.Thread):
         while True:
             recv_data = link_layer.receive() # type: Optional[bytes]
             if recv_data == None:
+                # notice:此处同样可能导致性能下面，cpu占用率100%
+                time.sleep(0.2)
                 continue
             # 查看该包是否是发给本机的
             ip_package = IP_Package.bytes_package_to_object(recv_data)

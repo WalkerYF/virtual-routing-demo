@@ -1,4 +1,17 @@
 {
+      // Customize keywords and colors. Any css color identifier is valid.
+      "todohighlight.keywords": [
+        {
+            "text": "notice:",
+            "color": "#FFFFFF",
+            "backgroundColor": "green"
+        },
+        {
+            "text": "NOTICE:",
+            "color": "#FFFFFF",
+            "backgroundColor": "green"
+        }
+    ],
     "python.pythonPath": "/usr/bin/python3",
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": true,
