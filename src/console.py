@@ -1,4 +1,5 @@
 import route
+import os
 import json
 import sys
 from include.utilities import IP_Package
@@ -70,6 +71,8 @@ while True:
             print('no receive!')
         else:
             print(ip_pkg)
+    elif main_action == 'q':
+        os._exit(0)
 
 
 
