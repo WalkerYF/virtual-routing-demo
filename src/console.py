@@ -28,7 +28,8 @@ help_menu = [
     'show interface\n\t: show simulation interface status',
     'show route\n\t: show the route table',
     'send src_ip dest_ip data \n\t: send the data to a route\n\texample : send 8.8.1.1 8.8.4.2 teste!',
-    'add dest_net net_mask final_ip \n\t: add a item in route table \n\texample : add 8.8.3.0 24 8.8.1.3 \n\tIt means that "to the net(8.8.3.0/24) via 8.8.4.2"',
+    'add dest_net net_mask final_ip \n\t: add an item in route table \n\texample : add 8.8.3.0 24 8.8.1.3 \n\tIt means that "to the net(8.8.3.0/24) via 8.8.4.2"',
+    'delete dest_net net_mask\n\t: delete an item in route table \n\texample : delete 8.8.3.0 24"',
     'recv\n\t: no arguments',
 ]
 
@@ -44,12 +45,12 @@ while True:
                         auto_suggest=AutoSuggestFromHistory(),
                         completer=Completer,
                         )
-    # 拆分用户参数
-    user_args = user_input.split()
-    logger.debug(user_args)
-    main_action = user_args[0]
-
     try:
+        # 拆分用户参数
+        user_args = user_input.split()
+        # logger.debug(user_args)
+        main_action = user_args[0]
+
         # 解析参数
         if main_action == 'show':
             if user_args[1] == 'interface':
@@ -65,6 +66,8 @@ while True:
                     print(help_msg)
         elif main_action == 'add':
             route.my_route_table.update_item(user_args[1], int(user_args[2]), user_args[3])
+        elif main_action == 'delete':
+            route.my_route_table.delete_item(user_args[1], int(user_args[2]))
         elif main_action == 'send':
             network_layer.send(user_args[1], user_args[2], user_args[3].encode('ascii'))
         elif main_action == 'recv':
