@@ -3,6 +3,8 @@
     "index": 1,
     "interfaces": [
         {
+            "counter_name": "E",
+            "cost": 1,
             "vip": "8.8.4.2",
             "netmask": 24,
             "counter_vip": "8.8.4.3",
@@ -13,6 +15,8 @@
             "counter_port": 6043
         },
         {
+            "counter_name": "D",
+            "cost": 1,
             "vip": "8.8.5.2",
             "netmask": 24,
             "counter_vip": "8.8.5.3",

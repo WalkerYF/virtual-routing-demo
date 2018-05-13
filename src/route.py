@@ -138,6 +138,7 @@ class NetworkLayer():
         # 初始化转发表
         self.init_route_table(config)
         # 初始化网线接口
+        self.interfaces = []
         self.init_interfaces(config)
 
         # f = open('matrix_topo.dump', 'rb')
@@ -166,17 +167,19 @@ class NetworkLayer():
     
     def init_interfaces(self, config):
         """ 初始化接口，并启动每一个接口 """
-        interfaces = []
+        # interfaces = []
         for intf in config['interfaces']:
             new_interface = Interface(
                 self.name,
+                intf['counter_name'],
+                intf['cost'],
                 (intf['vip'], intf['netmask']),
                 (intf['pip'], intf['port']),
                 (intf['counter_vip'], intf['counter_netmask']),
                 (intf['counter_pip'], intf['counter_port'])
             )
-            interfaces.append(new_interface)
-        link_layer.host_register(interfaces)
+            self.interfaces.append(new_interface)
+        link_layer.host_register(self.interfaces)
 
     def send(self, src_ip : str,  final_ip : str, ip_package_data : bytes):
         """ 只需要将这个包放到队列中即可，另一个线程负责队列中的包处理并发送出去 """
@@ -187,11 +190,12 @@ class NetworkLayer():
         ip_pkg = IP_Package(src_ip, final_ip, final_ip, 0, ip_package_data)
         route_send_package.put(ip_pkg)
 
-    def recv(self) -> bytes :
-        """ 阻塞式接受IP包，该IP包一定是发给自己，需要处理的 """
-        while route_recv_package.qsize == 0:
-            continue
-        return route_recv_package.get()
+    def recv(self) -> Optional[IP_Package] :
+        """ 非阻塞式接受IP包，该IP包一定是发给自己，需要处理的 如果没有收到，返回None，注意判断 """
+        if route_recv_package.qsize() == 0:
+            return None
+        else:
+            return route_recv_package.get()
 
     def update_route_table(self):
         #TODO: here

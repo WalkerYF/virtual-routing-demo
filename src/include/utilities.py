@@ -61,6 +61,7 @@ class IP_Package():
         self.net_mask = net_mask
         self.data = data
         self.data_bytes_length = len(self.data)
+        self.protocol = 0
 
     def to_bytes(self) -> bytes:
         """ 将自己转成比特形式返回 """
@@ -68,7 +69,8 @@ class IP_Package():
             '!HHIHH',
             0,self.data_bytes_length,
             0,
-            0,self.net_mask
+            self.protocol,
+            self.net_mask
         )
         # print(binary_ip_pkg)
         binary_ip_pkg += str_ip_to_bytes(self.src_ip)
@@ -85,6 +87,7 @@ class IP_Package():
         display_str += 'final_ip : {}\n'.format(self.final_ip)
         display_str += 'dest_ip : {}\n'.format(self.dest_ip)
         display_str += 'data_len : {}\n'.format(self.data_bytes_length)
+        display_str += 'protocol : {}\n'.format(self.protocol)
         display_str += 'data : {}\n'.format(str(self.data))
         return display_str
     
@@ -94,12 +97,15 @@ class IP_Package():
     @staticmethod
     def bytes_package_to_object(ip_pkg : bytes) -> 'IP_Package':
         """ 将一个bytes格式的IP包转成易操作的对象 """
+        protocol = struct.unpack_from('!H', ip_pkg, 8)[0]
         net_mask = struct.unpack_from('!H', ip_pkg, 10)[0]
         src_ip = bytes_ip_to_str(ip_pkg[12:16])
         final_ip = bytes_ip_to_str(ip_pkg[16:20])
         dest_ip = bytes_ip_to_str(ip_pkg[20:24])
         data = ip_pkg[24:]
-        return IP_Package(src_ip, dest_ip, final_ip, net_mask, data)
+        ret = IP_Package(src_ip, dest_ip, final_ip, net_mask, data)
+        ret.protocol = protocol
+        return ret
 
 
 def str_ip_to_bytes(ip : str) -> bytes:
