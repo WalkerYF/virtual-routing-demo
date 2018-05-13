@@ -191,12 +191,12 @@ class DataLinkLayer():
         pkg = IP_Package.bytes_package_to_object(ip_pkg)
         ip1 = pkg.dest_ip
         nm = pkg.net_mask
-    # def send(self, src, dest, ip_pkg):
-    #     ip1, nm1 = src
-    #     _, nm2 = dest
-    #     if nm1 != nm2:
-    #         logger.error('{} and {} not in same subnet'.format(str(nm1), str(nm2)))
-    #         raise Exception("{} and {} not in same subnet".format(nm1, nm2))
+        # def send(self, src, dest, ip_pkg):
+        #     ip1, nm1 = src
+        #     _, nm2 = dest
+        #     if nm1 != nm2:
+        #         logger.error('{} and {} not in same subnet'.format(str(nm1), str(nm2)))
+        #         raise Exception("{} and {} not in same subnet".format(nm1, nm2))
         subnet_prefix = utilities.get_subnet(ip1, nm)
         send_OK = False
         # 实现了：找到目的ip对应子网，再从子网中找到对应host，然后就直接调用这个host的send
@@ -208,8 +208,7 @@ class DataLinkLayer():
                         rsock.sendBytes(ip_pkg)
                         send_OK = True
                         return len(ip_pkg)
-        if send_OK == False:
-            return -1
+        return -1
 
     def receive(self) -> Optional[bytes]:
         if link_buf.empty():
