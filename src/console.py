@@ -37,7 +37,7 @@ with open(config_name, 'r') as config_f:
 network_layer = route.NetworkLayer(config)
 
 while True:
-    user_input = prompt('Route {}>'.format('A'), 
+    user_input = prompt('Route {}>'.format(network_layer.name), 
                         history=FileHistory('history.txt'),
                         auto_suggest=AutoSuggestFromHistory(),
                         completer=Completer,
