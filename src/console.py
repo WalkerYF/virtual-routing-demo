@@ -60,11 +60,11 @@ class Console():
                 # 解析参数
                 if main_action == 'show':
                     if user_args[1] == 'interface':
-                        route.link_layer.show_interface()
+                        self.route.link_layer.show_interface()
                     elif user_args[1] == 'tcp':
-                        route.link_layer.show_tcp()
+                        self.route.link_layer.show_tcp()
                     elif user_args[1] == 'route':
-                        route.my_route_table.show()
+                        self.route.my_route_table.show()
                     elif user_args[1] == 'help':
                         print('This is help message!')
                         for help_msg in self.help_menu:
