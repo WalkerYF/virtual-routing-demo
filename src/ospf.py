@@ -33,12 +33,13 @@ class NetworkLayerListener(threading.Thread):
     """
     非阻塞地询问网络层是否有数据到达。若有，则向终端输出数据
     """
-    def __init__(self) -> None:
+    def __init__(self, network_layer) -> None:
         threading.Thread.__init__(self)
+        self.network_layer = network_layer
     def run(self) -> None:
         logger.debug('network layer listerner begin to work')
         while True:
-            recv = network_layer.recv()
+            recv = self.network_layer.recv()
             if recv:
                 logger.info('network layer pkg received\n{}'.format(recv))
             time.sleep(0.1)
@@ -119,7 +120,7 @@ def init_global_route_table(network_layer, config_file: str) -> None:
 
 if __name__ == "__main__":
     network_layer = route.NetworkLayer(config)
-    network_layer_listener = NetworkLayerListener()
+    network_layer_listener = NetworkLayerListener(network_layer)
     network_layer_listener.start()
     init_global_route_table(network_layer, GLOBAL_ROUTE_INFORMATION_FILE)
 
