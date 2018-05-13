@@ -130,15 +130,15 @@ class NetworkLayerListener(threading.Thread):
     def run(self) -> None:
         logger.debug('network layer listener begin to work')
         while True:
-            pkg = network_layer.recv()
+            pkg = network_layer.recv_rip()
             if pkg is None:
                 time.sleep(0.01)
                 continue
             if(pkg.protocol == 120):
                 rip_msg = utilities.objDecode(pkg.data)
                 rip_worker.process(rip_msg)
-            else:
-                route.route_recv_package.put(pkg)
+            # else:
+                # route.route_recv_package.put(pkg)
 
 if __name__ == "__main__":
 
