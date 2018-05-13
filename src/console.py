@@ -3,6 +3,7 @@ import json
 import sys
 import threading
 import logging
+import traceback
 import time
 
 from prompt_toolkit import prompt
