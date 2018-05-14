@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# 这个测试样例测试了简单的相邻路由器发送以及增加路由表项后的转发
 # 在test文件夹下运行下运行
 ROOT=.
 # 使用的源代码的文件名
@@ -25,14 +26,13 @@ tmux new-session -s init -n service -d
 # 左右分屏
 tmux split-window -h -p 66 -t "init":0.0
 # 左右分屏
-#tmux split-window -h -p 50 -t "init":0.1
-tmux split-window -t "init":0.1
+tmux split-window -h -p 50 -t "init":0.1
 # 上下分屏
 tmux split-window -t "init":0.0
 # 上下分屏
-tmux split-window -t "init":0.2
+tmux split-window -t "init":0.1
 # 上下分屏
-#tmux split-window -t "init":0.3
+tmux split-window -t "init":0.2
 
 # 切换到指定目录并运行服务
 tmux send -t "init":0.0 "$PYTHON $SRC_FILE ${ROUTE_LIST[0]}" Enter
@@ -56,7 +56,6 @@ tmux send -t "init":0.3 "sleep 5;recv" Enter
 # 给路由器E发送初始化脚本
 tmux send -t "init":0.4 "sleep 5;recv" Enter
 
-#tmux a -t init
+tmux a -t init
 
-#tmux kill-session -t  init
-
+tmux kill-session -t  init
