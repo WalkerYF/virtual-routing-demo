@@ -25,13 +25,14 @@ tmux new-session -s init -n service -d
 # 左右分屏
 tmux split-window -h -p 66 -t "init":0.0
 # 左右分屏
-tmux split-window -h -p 50 -t "init":0.1
+#tmux split-window -h -p 50 -t "init":0.1
+tmux split-window -t "init":0.1
 # 上下分屏
 tmux split-window -t "init":0.0
 # 上下分屏
-tmux split-window -t "init":0.1
-# 上下分屏
 tmux split-window -t "init":0.2
+# 上下分屏
+#tmux split-window -t "init":0.3
 
 # 切换到指定目录并运行服务
 tmux send -t "init":0.0 "$PYTHON $SRC_FILE ${ROUTE_LIST[0]}" Enter
@@ -40,8 +41,14 @@ tmux send -t "init":0.2 "$PYTHON $SRC_FILE ${ROUTE_LIST[2]}" Enter
 tmux send -t "init":0.3 "$PYTHON $SRC_FILE ${ROUTE_LIST[3]}" Enter
 tmux send -t "init":0.4 "$PYTHON $SRC_FILE ${ROUTE_LIST[4]}" Enter
 
+<<<<<<< HEAD
 # 给路由器A发送初始化脚本
 tmux send -t "init":0.0 "sleep 3;show interface;send 8.8.1.2 8.8.4.2 test-A-to-B;add 8.8.4.0 24 8.8.1.3;send 8.8.1.2 8.8.4.2 test-A-to-B;send 8.8.1.2 8.8.1.3 test-A-to-E" Enter
+=======
+tmux a -t init
+# tmux send -t "init":0.0 "add 8.8.4.0 24 8.8.1.3" Enter
+#tmux send -t "init":0.0 "add 8.8.4.0 24 8.8.1.3;sleep 3;send 8.8.1.2 8.8.4.2 test-A-to-E;send 8.8.1.2 8.8.1.3 test-A-to-E" Enter
+>>>>>>> 7cf281340a64d715d3ee959d035def101f21ec6c
 
 # 给路由器B发送初始化脚本
 tmux send -t "init":0.1 "sleep 5;recv" Enter
@@ -55,6 +62,7 @@ tmux send -t "init":0.3 "sleep 5;recv" Enter
 # 给路由器E发送初始化脚本
 tmux send -t "init":0.4 "sleep 5;recv" Enter
 
-tmux a -t init
+#tmux a -t init
 
-tmux kill-session -t  init
+#tmux kill-session -t  init
+
