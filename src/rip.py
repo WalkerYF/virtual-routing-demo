@@ -176,7 +176,7 @@ if __name__ == "__main__":
     network_layer_listener = NetworkLayerListener()
     network_layer_listener.start()
     rip_worker = RIP(network_layer.name, network_layer.interfaces)
-    rip_worker.start()
+    # rip_worker.start()
 
     Completer = WordCompleter(['show help', 'show tcp', 'show interface', 'show route', 'show dv', 'add', 'send', 'recv'],
                               ignore_case=True)
@@ -219,6 +219,9 @@ if __name__ == "__main__":
                             print(help_msg)
                     elif user_args[1] == 'dv':
                         rip_worker.show_dv()
+                elif main_action == 'start':
+                    # 开启RIP协议
+                    rip_worker.start()
                 elif main_action == 'add':
                     # 往路由表中增加表项
                     route.my_route_table.update_item(user_args[1], int(user_args[2]), user_args[3])
