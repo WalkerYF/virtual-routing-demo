@@ -4,7 +4,7 @@
 ROOT=.
 # 使用的源代码的文件名
 FILE_NAME=$1
-# 源代码路劲
+# 源代码路径
 SRC_ROOT=$ROOT/../src
 # 测试的配置文件路径
 TEST_ROOT=$ROOT
