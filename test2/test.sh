@@ -8,6 +8,10 @@ FILE_NAME=$1
 SRC_ROOT=$ROOT/../src
 # 测试的配置文件路径
 TEST_ROOT=$ROOT
+# 是否显示调试信息
+# start or srtp
+# 如果将下面这一行取消注释，在输入命令的时候使用:./text.sh rip.py stop，就会在每一个路由器上都运行：debug stop，就不会显示调试信息
+# DEBUG_COMMAND="debug $2"
 
 # 加上路径后的源代码文件
 SRC_FILE=$SRC_ROOT/$FILE_NAME
@@ -45,27 +49,27 @@ tmux send -t "init":0.5 "sleep 1 ; $PYTHON $SRC_FILE ${ROUTE_LIST[5]}" Enter
 tmux send -t "init":0.6 "sleep 1.2 ; $PYTHON $SRC_FILE ${ROUTE_LIST[6]}" Enter
 
 # 给每一个路由器发送一个初始化运行脚本
-
+# 注意如果脚本只有一条命令的话不要在后面加分号;不然会出问题
 # 给路由器A发送初始化脚本
-tmux send -t "init":0.0 "show interface;sleep 3;show interface;send 7.7.2.1 7.7.7.1 test-A-to-D;add 7.7.7.0 24 7.7.2.2;send 7.7.2.1 7.7.7.1 test-A-to-D" Enter
+tmux send -t "init":0.0 "$DEBUG_COMMAND;show interface;sleep 3;show interface;send 7.7.2.1 7.7.7.1 test-A-to-D;add 7.7.7.0 24 7.7.2.2;send 7.7.2.1 7.7.7.1 test-A-to-D" Enter
 
 # 给路由器B发送初始化脚本
-tmux send -t "init":0.1 "" Enter
+tmux send -t "init":0.1 "$DEBUG_COMMAND" Enter
 
 # 给路由器C发送初始化脚本
-tmux send -t "init":0.2 "sleep 2;add 7.7.7.0 24 7.7.8.2" Enter
+tmux send -t "init":0.2 "$DEBUG_COMMAND;sleep 2;add 7.7.7.0 24 7.7.8.2" Enter
 
 # 给路由器D发送初始化脚本
-tmux send -t "init":0.3 "sleep 5;recv" Enter
+tmux send -t "init":0.3 "$DEBUG_COMMAND;sleep 5;recv" Enter
 
 # 给路由器E发送初始化脚本
-tmux send -t "init":0.4 "sleep 4;recv" Enter
+tmux send -t "init":0.4 "$DEBUG_COMMAND;sleep 4;recv" Enter
 
 # 给路由器F发送初始化脚本
-tmux send -t "init":0.5 "" Enter
+tmux send -t "init":0.5 "$DEBUG_COMMAND" Enter
 
 # 给路由器G发送初始化脚本
-tmux send -t "init":0.6 "" Enter
+tmux send -t "init":0.6 "$DEBUG_COMMAND" Enter
 
 
 
