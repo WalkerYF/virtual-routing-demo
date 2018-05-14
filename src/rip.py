@@ -129,7 +129,9 @@ class RIP(threading.Thread):
                     # print(dest, newcost, self.dis_vec[dest]['cost'])
                     if newcost < self.dis_vec[dest]['cost']:
                         self.dis_vec[dest]['cost'] = newcost
-                        self.dis_vec[dest]['path'] = detail['path'].insert(0, medium)
+                        newpath = detail['path']
+                        newpath.insert(0, medium)
+                        self.dis_vec[dest]['path'] = newpath
                         logger.info("[RIP] New shortest path found\n{} -> {} cost {}, path: {}".format(
                             self.route_name, dest, self.dis_vec[dest]['cost'], self.dis_vec[dest]['path']))
                         for vip, netmask in self.topo[dest]:

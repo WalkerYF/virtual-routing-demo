@@ -25,13 +25,14 @@ tmux new-session -s init -n service -d
 # 左右分屏
 tmux split-window -h -p 66 -t "init":0.0
 # 左右分屏
-tmux split-window -h -p 50 -t "init":0.1
+#tmux split-window -h -p 50 -t "init":0.1
+tmux split-window -t "init":0.1
 # 上下分屏
 tmux split-window -t "init":0.0
 # 上下分屏
-tmux split-window -t "init":0.1
-# 上下分屏
 tmux split-window -t "init":0.2
+# 上下分屏
+#tmux split-window -t "init":0.3
 
 # 切换到指定目录并运行服务
 tmux send -t "init":0.0 "$PYTHON $SRC_FILE ${ROUTE_LIST[0]}" Enter
