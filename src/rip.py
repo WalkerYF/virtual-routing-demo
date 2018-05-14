@@ -254,6 +254,8 @@ if __name__ == "__main__":
                         logger.disabled = False
                     if user_args[1] == 'stop':
                         logger.disabled = True
+                elif main_action == 'sleep':
+                    time.sleep(int(user_args[1]))
                 elif main_action == 'q':
                     os._exit(0)
         except IndexError:
