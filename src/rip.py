@@ -15,6 +15,8 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.contrib.completers import WordCompleter
 from prettytable import PrettyTable
 
+logging.addLevelName( logging.WARNING, "\033[1;31m%s\033[1;0m" % logging.getLevelName(logging.WARNING))
+logging.addLevelName( logging.ERROR, "\033[1;41m%s\033[1;0m" % logging.getLevelName(logging.ERROR))
 logging.basicConfig(
     # filename='../../log/client.{}.log'.format(__name__),
     format='[%(asctime)s - %(name)s - %(levelname)s] : \n%(message)s\n',
@@ -33,11 +35,12 @@ class RIP(threading.Thread):
         threading.Thread.__init__(self)
         self.route_name = route_name
         self.interfaces = interfaces
+        self.tear_down = []
         self.dis_vec = {
             intf.counter_name :
                 {
                 "cost": intf.link_cost,
-                "path": [route_name]
+                "path": [intf.counter_name]
                 }
             for intf in interfaces}
         #已知的网络拓扑
@@ -62,7 +65,9 @@ class RIP(threading.Thread):
             # "intfs": [(inf.vip, inf.netmask) for inf in interfaces],
             "topo": self.topo,
             "md5" : md5.hexdigest(),
+            'tear_down': self.tear_down,
             "dv": self.dis_vec
+
         }
         s = utilities.objEncode(rip_msg)
         for inf in interfaces:
@@ -72,7 +77,58 @@ class RIP(threading.Thread):
 
     def process(self, rip_msg : dict):
         medium = rip_msg['from']
+        # 阻止含有之前已经处理过的离线的路由器的信息的rip报文
+        if medium in self.tear_down:
+            return
+        
+        for rname, detail in rip_msg['dv'].items():
+            for drname in self.tear_down:
+                if drname in detail['path']:
+                    logger.debug("[RIP] [Dropped] DV of %s contain offline route %s", medium, drname)
+                    return
+
+        for rname in rip_msg['topo'].keys():
+            if rname in self.tear_down:
+                logger.debug("[RIP] [Dropped] TOPO of %s contain offline route %s", medium, drname)
+                return
+
         logger.debug("[RIP] received rip package from %s", medium)
+        new_tear_down = set(rip_msg['tear_down']) - set(self.tear_down)
+        self.tear_down = list(set().union(self.tear_down, rip_msg['tear_down']))
+
+        # 删除自身所有有关已经离线了的路由器的信息
+        # 删除距离向量中的这一行
+        if len(new_tear_down) != 0:
+            to_del = []
+            for drname in new_tear_down:
+                if drname in self.dis_vec.keys():
+                    to_del.append(drname)
+            for drname in to_del:
+                del self.dis_vec[drname]
+
+            # 删除距离向量中所有途径offline路由器的
+            to_del = []
+            for drname in new_tear_down:
+                for rname, detail in self.dis_vec.items():
+                    if drname in detail['path']:
+                        to_del.append(rname)
+            for rname in to_del:
+                del self.dis_vec[rname]
+
+
+            for drname in new_tear_down:
+                # 删除路由表中有关的
+                for vip, nm in self.topo[drname]:
+                    route.my_route_table.delete_item(vip, nm)
+                    route.my_route_table.delete_item(utilities.get_subnet(vip, nm), nm)
+                # 网络层端口中将其设为offline
+                for intf in network_layer.interfaces:
+                    if intf.counter_name == drname:
+                        intf.status = "offline"
+                # 删除关于它的拓扑记录
+                del self.topo[drname]
+                return
+
         for dest, intfs in rip_msg['topo'].items():
             if dest not in self.topo:
                 self.topo[dest] = intfs
@@ -97,28 +153,15 @@ class RIP(threading.Thread):
                     continue
                 cost = detail['cost']
                 newcost = self.dis_vec[medium]['cost'] + cost
-                if cost >= DV_INF:
-                    if dest == self.route_name:
-                        logger.info("Direct link cost to {} reset to INF, tear down all connection with it".format(medium))
-                        for vip, nm in self.topo[medium]:
-                            route.my_route_table.delete_item(vip, nm)
-                            route.my_route_table.delete_item(utilities.get_subnet(vip, nm), nm)
-                            self.dis_vec[medium] = {'cost': DV_INF, 'path': []}
-                            for intf in network_layer.interfaces:
-                                if intf.counter_name == medium:
-                                    intf.status = "offline"
-                    else:
-                        logger.info("Link cost to {} reset to INF, tear down all connection with it".format(medium))
-                        for vip, nm in self.topo[medium]:
-                            route.my_route_table.delete_item(vip, nm)
-                            self.dis_vec[medium] = {'cost': DV_INF, 'path': []}
-                elif dest == self.route_name:
+                if dest == self.route_name:
                     continue
                 elif dest not in self.dis_vec.keys():
+                    newpath = detail['path']
+                    newpath.insert(0, medium)
                     self.dis_vec[dest] = \
                         {
                             "cost": newcost,
-                            "path": [medium, dest]
+                            "path": newpath
                         }
                     logger.info("[RIP] New shortest path found\n{} -> {} cost {}, path: {}".format(
                         self.route_name, dest, self.dis_vec[dest]['cost'], self.dis_vec[dest]['path']))
@@ -130,6 +173,7 @@ class RIP(threading.Thread):
                     if newcost < self.dis_vec[dest]['cost']:
                         self.dis_vec[dest]['cost'] = newcost
                         newpath = detail['path']
+                        # logger.warning('New Path is {}, now append {} to it'.format(newpath, medium))
                         newpath.insert(0, medium)
                         self.dis_vec[dest]['path'] = newpath
                         logger.info("[RIP] New shortest path found\n{} -> {} cost {}, path: {}".format(
@@ -218,6 +262,8 @@ if __name__ == "__main__":
                         print(help_msg)
                 elif user_args[1] == 'dv':
                     rip_worker.show_dv()
+                elif user_args[1] == 'off':
+                    print(rip_worker.tear_down)
             elif main_action == 'add':
                 # 往路由表中增加表项
                 route.my_route_table.update_item(user_args[1], int(user_args[2]), user_args[3])
@@ -248,6 +294,11 @@ if __name__ == "__main__":
                 rip_worker.working_flag = False
                 for rname, detail in rip_worker.dis_vec.items():
                     detail['cost'] = DV_INF
+                rip_worker.tear_down.append(rip_worker.route_name)
+            elif main_action == 'p':
+                logger.setLevel(logging.INFO)
+            elif main_action == 'o':
+                logger.setLevel(logging.DEBUG)
             elif main_action == 'q':
                 os._exit(0)
         except IndexError:
