@@ -40,4 +40,12 @@ tmux send -t "init":0.2 "$PYTHON $SRC_FILE ${ROUTE_LIST[2]}" Enter
 tmux send -t "init":0.3 "$PYTHON $SRC_FILE ${ROUTE_LIST[3]}" Enter
 tmux send -t "init":0.4 "$PYTHON $SRC_FILE ${ROUTE_LIST[4]}" Enter
 
+# tmux send -t "init":0.0 "add 8.8.4.0 24 8.8.1.3" Enter
+tmux send -t "init":0.0 "add 8.8.4.0 24 8.8.1.3;sleep 3;send 8.8.1.2 8.8.4.2 test-A-to-E;send 8.8.1.2 8.8.1.3 test-A-to-E" Enter
+
+# tmux send -t "init":0.0 "send 8.8.1.2 8.8.4.2 test-A-to-E" Enter
+
+
 tmux a -t init
+
+tmux kill-session -t  init
