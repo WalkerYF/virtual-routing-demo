@@ -41,9 +41,13 @@ class RIP(threading.Thread):
             intf.counter_name :
                 {
                 "cost": intf.link_cost,
-                "path": [intf.counter_name]
+                "path": [intf.name, intf.counter_name]
                 }
             for intf in interfaces}
+        self.dis_mat = {}
+        for intf in interfaces:
+            self.dis_mat[intf.counter_name] = {}
+
         #已知的网络拓扑
         self.topo = {route_name: [(inf.vip, inf.netmask) for inf in interfaces]}
         self.direct_routes = [intf.counter_name for intf in interfaces]
@@ -127,6 +131,9 @@ class RIP(threading.Thread):
                         intf.status = "offline"
                 # 删除关于它的拓扑记录
                 del self.topo[drname]
+                self.dis_mat = {}
+                for intf in self.interfaces:
+                    self.dis_mat[intf.counter_name] = {}
                 return
 
         for dest, intfs in rip_msg['topo'].items():
@@ -137,6 +144,7 @@ class RIP(threading.Thread):
                     for vip, netmask in intfs:
                         logger.info("[RIP] Updating route table\n{} {} THROUTH {}".format(vip, netmask, self.next_hop[dest]))
                         route.my_route_table.update_item(vip, netmask, self.next_hop[dest])
+        
         # if medium not in self.topo.keys():
         #     self.topo[medium] = rip_msg['intfs']
         if rip_msg['md5'] in self.received_set:
@@ -147,6 +155,7 @@ class RIP(threading.Thread):
                 self.received_set.add(rip_msg['md5'])
         else:
             msg_used = True
+            mininum = DV_INF
             for dest, detail in rip_msg['dv'].items():
                 if not dest in self.topo.keys():
                     msg_used = False
@@ -157,7 +166,7 @@ class RIP(threading.Thread):
                     continue
                 elif dest not in self.dis_vec.keys():
                     newpath = detail['path']
-                    newpath.insert(0, medium)
+                    newpath.insert(0, self.route_name)
                     self.dis_vec[dest] = \
                         {
                             "cost": newcost,
@@ -168,19 +177,64 @@ class RIP(threading.Thread):
                     for vip, netmask in self.topo[dest]:
                         logger.info("[RIP] Updating route table\n{} {} THROUTH {}".format(vip, netmask, self.next_hop[medium]))
                         route.my_route_table.update_item(vip, netmask, self.next_hop[medium])
-                else:
-                    # print(dest, newcost, self.dis_vec[dest]['cost'])
-                    if newcost < self.dis_vec[dest]['cost']:
-                        self.dis_vec[dest]['cost'] = newcost
-                        newpath = detail['path']
-                        # logger.warning('New Path is {}, now append {} to it'.format(newpath, medium))
-                        newpath.insert(0, medium)
-                        self.dis_vec[dest]['path'] = newpath
-                        logger.info("[RIP] New shortest path found\n{} -> {} cost {}, path: {}".format(
-                            self.route_name, dest, self.dis_vec[dest]['cost'], self.dis_vec[dest]['path']))
-                        for vip, netmask in self.topo[dest]:
-                            logger.info("[RIP] Updating route table\n{} {} THROUTH {}".format(vip, netmask, self.next_hop[medium]))
-                            route.my_route_table.update_item(vip, netmask, self.next_hop[medium])
+
+        self.dis_mat[medium] = rip_msg['dv']
+        logger.debug('{}'.format(utilities.obj_to_beautiful_json(self.dis_mat)))
+        # print(self.dis_mat)
+        for dest, detail in self.dis_vec.items():
+            if dest in self.direct_routes:
+                continue
+            if not dest in self.topo.keys():
+                continue
+            mininum = DV_INF
+            new_path = []
+            medium = ''
+            bool_changed = False
+            for entry_route, dv in self.dis_mat.items():
+                if dest not in dv.keys():
+                    continue
+                new_cost = self.dis_vec[entry_route]['cost'] + dv[dest]['cost']
+                if new_cost < mininum:
+                    if dest in dv[dest]['path'] and dest != dv[dest]['path'][-1]:
+                        continue
+                    logger.debug('maybe shortest : {} to {}'.format(self.route_name, dest))
+                    logger.debug('{} plus {}'.format(dest, dv[dest]['path']))
+                    mininum = new_cost
+                    medium = entry_route
+                    new_path = dv[dest]['path']
+                    if new_path[0] != self.route_name:
+                        bool_changed = True
+                        new_path.insert(0, self.route_name)
+
+            old_cost = detail['cost']
+            detail['cost'] = mininum
+            if mininum >= DV_INF:
+                detail['path'] = []
+            else:
+                logger.debug("{} to {} now walks {}".format(self.route_name, dest, new_path))
+                detail['path'] = new_path
+            if medium != '':
+                for vip, netmask in self.topo[dest]:
+                    route.my_route_table.update_item(vip, netmask, self.next_hop[medium])
+
+            if old_cost != detail['cost']:
+                 logger.info("[RIP] New shortest path found\n{} -> {} cost {}, path: {}".format(
+                     self.route_name, dest, self.dis_vec[dest]['cost'], self.dis_vec[dest]['path']))
+
+
+
+                    # # print(dest, newcost, self.dis_vec[dest]['cost'])
+                    # if newcost < self.dis_vec[dest]['cost']:
+                    #     self.dis_vec[dest]['cost'] = newcost
+                    #     newpath = detail['path']
+                    #     # logger.warning('New Path is {}, now append {} to it'.format(newpath, medium))
+                    #     newpath.insert(0, medium)
+                    #     self.dis_vec[dest]['path'] = newpath
+                    #     logger.info("[RIP] New shortest path found\n{} -> {} cost {}, path: {}".format(
+                    #         self.route_name, dest, self.dis_vec[dest]['cost'], self.dis_vec[dest]['path']))
+                    #     for vip, netmask in self.topo[dest]:
+                    #         logger.info("[RIP] Updating route table\n{} {} THROUTH {}".format(vip, netmask, self.next_hop[medium]))
+                    #         route.my_route_table.update_item(vip, netmask, self.next_hop[medium])
             if msg_used:
                 self.received_set.add(rip_msg['md5'])
 
@@ -322,10 +376,11 @@ if __name__ == "__main__":
                     logger.setLevel(logging.DEBUG)
                 elif main_action == 'cost':
                     _vip = user_args[1]
-                    _cost = (user_args[2])
-                    for intf in network_layer.interfaces:
+                    _cost = int(user_args[2])
+                    found = False
+                    for intf in rip_worker.interfaces:
                         if intf.vip == _vip:
-                            logger.info('Cost %s -> %s changed to %d', rip_worker.route_name, intf.counter_name, _cost)
+                            print('Cost {} -> {} changed to {}'.format(rip_worker.route_name, intf.counter_name, _cost))
                             rip_worker.dis_vec[intf.counter_name]['cost'] = _cost
                             cost_msg = {
                                 "vip": intf.counter_vip,
@@ -335,6 +390,10 @@ if __name__ == "__main__":
                             pkg = route.IP_Package(intf.vip, intf.counter_vip, intf.counter_vip, 24, s)
                             pkg.protocol = 121
                             route.link_layer.send(pkg.to_bytes())
+                            found = True
+                            break
+                    if found == False:
+                        print('{} is not a on-link interface'.format(_vip))
                 elif main_action == 'q':
                     os._exit(0)
         except IndexError:
