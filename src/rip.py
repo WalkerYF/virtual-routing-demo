@@ -242,7 +242,10 @@ class RIP(threading.Thread):
         x = PrettyTable(['Dest', 'Cost', 'Path'])
         x.padding_width = 1
         for rname, detail in self.dis_vec.items():
-            x.add_row([rname, detail['cost'], detail['path']])
+            if len(detail['path']) > 0:
+                x.add_row([rname, detail['cost'], detail['path'][1:]])
+            else:
+                x.add_row([rname, detail['cost'], detail['path']])
         print(x)
 
 class NetworkLayerListener(threading.Thread):
