@@ -46,26 +46,26 @@ tmux send -t "init":0.6 "sleep 1.2 ; $PYTHON $SRC_FILE ${ROUTE_LIST[6]}" Enter
 
 # 给每一个路由器发送一个初始化运行脚本
 
-# # 给路由器A发送初始化脚本
-# tmux send -t "init":0.0 "show interface;sleep 3;show interface;send 7.7.2.1 7.7.7.1 test-A-to-D;add 7.7.7.0 24 7.7.2.2;send 7.7.2.1 7.7.7.1 test-A-to-D" Enter
+# 给路由器A发送初始化脚本
+tmux send -t "init":0.0 "show interface;sleep 3;show interface;send 7.7.2.1 7.7.7.1 test-A-to-D;add 7.7.7.0 24 7.7.2.2;send 7.7.2.1 7.7.7.1 test-A-to-D" Enter
 
-# # 给路由器B发送初始化脚本
-# tmux send -t "init":0.1 "" Enter
+# 给路由器B发送初始化脚本
+tmux send -t "init":0.1 "" Enter
 
-# # 给路由器C发送初始化脚本
-# tmux send -t "init":0.2 "" Enter
+# 给路由器C发送初始化脚本
+tmux send -t "init":0.2 "sleep 2;add 7.7.7.0 24 7.7.8.2" Enter
 
-# # 给路由器D发送初始化脚本
-# tmux send -t "init":0.3 "sleep 5;recv" Enter
+# 给路由器D发送初始化脚本
+tmux send -t "init":0.3 "sleep 5;recv" Enter
 
-# # 给路由器E发送初始化脚本
-# tmux send -t "init":0.4 "sleep 4;recv" Enter
+# 给路由器E发送初始化脚本
+tmux send -t "init":0.4 "sleep 4;recv" Enter
 
-# # 给路由器F发送初始化脚本
-# tmux send -t "init":0.5 "" Enter
+# 给路由器F发送初始化脚本
+tmux send -t "init":0.5 "" Enter
 
-# # 给路由器G发送初始化脚本
-# tmux send -t "init":0.6 "" Enter
+# 给路由器G发送初始化脚本
+tmux send -t "init":0.6 "" Enter
 
 
 
