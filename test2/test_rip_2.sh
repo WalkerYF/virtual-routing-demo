@@ -55,25 +55,25 @@ tmux send -t "init":0.6 "sleep 1.2 ; $PYTHON $SRC_FILE ${ROUTE_LIST[6]}" Enter
 # 给每一个路由器发送一个初始化运行脚本
 # 注意如果脚本只有一条命令的话不要在后面加分号;不然会出问题
 # 给路由器A发送初始化脚本
-tmux send -t "init":0.0 "debug start;start rip;sleep 6;show dv$COMMAND_FOR_ALL" Enter
+tmux send -t "init":0.0 "" Enter
 
 # 给路由器B发送初始化脚本
-tmux send -t "init":0.1 "debug start;start rip;sleep 6;show dv$COMMAND_FOR_ALL" Enter
+tmux send -t "init":0.1 "sleep 20;$COMMAND_FOR_ALL" Enter
 
 # 给路由器C发送初始化脚本
-tmux send -t "init":0.2 "debug start;start rip;sleep 6;show dv$COMMAND_FOR_ALL" Enter
+tmux send -t "init":0.2 "sleep 20;$COMMAND_FOR_ALL" Enter
 
 # 给路由器D发送初始化脚本
-tmux send -t "init":0.3 "debug start;start rip;sleep 6;show dv$COMMAND_FOR_ALL" Enter
+tmux send -t "init":0.3 "sleep 20;$COMMAND_FOR_ALL" Enter
 
 # 给路由器E发送初始化脚本
-tmux send -t "init":0.4 "debug start;start rip;sleep 6;show dv$COMMAND_FOR_ALL" Enter
+tmux send -t "init":0.4 "sleep 20;$COMMAND_FOR_ALL" Enter
 
 # 给路由器F发送初始化脚本
-tmux send -t "init":0.5 "debug start;start rip;sleep 6;show dv$COMMAND_FOR_ALL" Enter
+tmux send -t "init":0.5 "sleep 20;$COMMAND_FOR_ALL" Enter
 
 # 给路由器G发送初始化脚本
-tmux send -t "init":0.6 "debug start;start rip;sleep 6;show dv$COMMAND_FOR_ALL" Enter
+tmux send -t "init":0.6 "sleep 20;$COMMAND_FOR_ALL" Enter
 
 
 
