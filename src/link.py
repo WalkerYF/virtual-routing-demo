@@ -208,12 +208,14 @@ class DataLinkLayer():
             if subnet.prefix == subnet_prefix:
                 for host in subnet.hosts:
                     if (host.counter_vip == ip1 or host.vip == ip1) and host.netmask == nm:
+                        if host.status == "offline" or host.status == "down":
+                            return -1
                     # TODO:允许以出端口作为dest_ip
                         try:
                             rsock = rdt_socket.rdt_socket(host.counter_socket)
                             rsock.sendBytes(ip_pkg)
                             return len(ip_pkg)
-                        except Exception:
+                        except Exception as e:
                             return -1
 
     def receive(self) -> Optional[bytes]:
