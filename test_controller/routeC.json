@@ -74,6 +74,20 @@
             "counter_index": 5,
             "counter_name": "F",
             "weight": 1
+        },
+        {
+            "cost": 1,
+            "vip": "7.7.10.2",
+            "netmask": 24,
+            "counter_vip": "7.7.10.1",
+            "counter_netmask": 24,
+            "pip": "127.0.0.1",
+            "port": 7102,
+            "counter_pip": "127.0.0.1",
+            "counter_port": 7101,
+            "counter_index": 5,
+            "counter_name": "G",
+            "weight": 1
         }
     ]
 }

@@ -45,3 +45,6 @@ tmux send -t "init":0.5 "$PYTHON $SRC_FILE ${ROUTE_LIST[5]}" Enter
 tmux send -t "init":0.6 "$PYTHON $SRC_FILE ${ROUTE_LIST[6]}" Enter
 
 tmux a -t init
+
+
+tmux kill-session -t  init
