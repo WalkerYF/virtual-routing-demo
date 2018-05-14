@@ -51,6 +51,9 @@ my_route_table = RouteTable()
 rip_recv_package = queue.Queue(0) # type: Queue[IP_Package]
 # 用来存放ospf协议的ip包
 ospf_recv_package = queue.Queue(0) # type: Queue[IP_Package]
+# 用来存放cost协议的ip包
+cost_recv_package = queue.Queue(0) # type: Queue[IP_Package]
+
 # 用来存储网络层需要向上传递的普通ip包
 route_recv_package = queue.Queue(0) # type: Queue[IP_Package]
 
@@ -129,6 +132,8 @@ class MonitorLinkLayer(threading.Thread):
                 elif ip_package.protocol == 119:
                     # OSPF协议
                     ospf_recv_package.put(ip_package)
+                elif ip_package.protocol == 121:
+                    cost_recv_package.put(ip_package)
                 else :
                     route_recv_package.put(ip_package)
             else:
@@ -218,6 +223,13 @@ class NetworkLayer():
             return None
         else:
             return ospf_recv_package.get()
+
+    def recv_cost(self) -> Optional[IP_Package] :
+        """ 非阻塞式接受IP包(用于rip协议），如果没有收到，返回None，注意判断 """
+        if cost_recv_package.qsize() == 0:
+            return None
+        else:
+            return cost_recv_package.get()
 
     def update_route_table(self):
         #TODO: here

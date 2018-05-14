@@ -27,6 +27,7 @@ logger.setLevel(logging.INFO)
 
 DV_INF = int(1E9)
 
+
 class RIP(threading.Thread):
     def __init__(self, route_name, interfaces):
         """
@@ -67,7 +68,6 @@ class RIP(threading.Thread):
             "md5" : md5.hexdigest(),
             'tear_down': self.tear_down,
             "dv": self.dis_vec
-
         }
         s = utilities.objEncode(rip_msg)
         for inf in interfaces:
@@ -200,15 +200,28 @@ class NetworkLayerListener(threading.Thread):
     def run(self) -> None:
         logger.debug('network layer listener begin to work')
         while True:
-            pkg = network_layer.recv_rip()
-            if pkg is None:
-                time.sleep(0.01)
-                continue
-            if(pkg.protocol == 120):
-                rip_msg = utilities.objDecode(pkg.data)
-                rip_worker.process(rip_msg)
-            # else:
-                # route.route_recv_package.put(pkg)
+            for protocol in ['rip', 'cost']:
+                if protocol == 'rip':
+                    pkg = network_layer.recv_rip()
+                    if pkg is None:
+                        continue
+                    if(pkg.protocol == 120):
+                        rip_msg = utilities.objDecode(pkg.data)
+                        rip_worker.process(rip_msg)
+                elif protocol == 'cost':
+                    pkg = network_layer.recv_cost()
+                    if pkg is None:
+                        continue
+                    if(pkg.protocol == 121):
+                        cost_msg = utilities.objDecode(pkg.data)
+                        _vip = cost_msg['vip']
+                        _cost = cost_msg['cost']
+                        for intf in rip_worker.interfaces:
+                            if intf.vip == _vip:
+                                logger.info('Cost %s -> %s changed to %d', rip_worker.route_name, intf.counter_name, _cost)
+                                rip_worker.dis_vec[intf.counter_name]['cost'] = _cost
+            time.sleep(0.01)
+
 
 if __name__ == "__main__":
 
@@ -281,68 +294,49 @@ if __name__ == "__main__":
                                     logger.info('[RIP] Reset cost %s to %s to INF', network_layer.name, rname)
                                     rip_worker.dis_vec[rname]['cost'] = DV_INF
                                     rip_worker.dis_vec[rname]['path'] = []
-
-            # 解析参数
-            if main_action == 'show':
-                if user_args[1] == 'interface':
-                    route.link_layer.show_interface()
-                elif user_args[1] == 'tcp':
-                    route.link_layer.show_tcp()
-                elif user_args[1] == 'route':
-                    route.my_route_table.show()
-                elif user_args[1] == 'help':
-                    print('This is help message!')
-                    for help_msg in help_menu:
-                        print('-'*40)
-                        print(help_msg)
-                elif user_args[1] == 'dv':
-                    rip_worker.show_dv()
-                elif user_args[1] == 'off':
-                    print(rip_worker.tear_down)
-            elif main_action == 'add':
-                # 往路由表中增加表项
-                route.my_route_table.update_item(user_args[1], int(user_args[2]), user_args[3])
-            elif main_action == 'delete':
-                # 删除某一项
-                route.my_route_table.delete_item(user_args[1], int(user_args[2]))
-                for rname, lvip_mask in rip_worker.topo.items():
-                    for lvip, lmask in lvip_mask:
-                        if user_args[1] == lvip and int(user_args[2]) == lmask:
-                            if rname in rip_worker.direct_routes:
-                                print("Cannot delete, {} is a directly connected route")
-                            else:
-                                logger.info('[RIP] Reset cost %s to %s to INF', network_layer.name, rname)
-                                rip_worker.dis_vec[rname]['cost'] = DV_INF
-                                rip_worker.dis_vec[rname]['path'] = []
-
-            elif main_action == 'send':
-                # 发送信息
-                network_layer.send(user_args[1], user_args[2], user_args[3].encode('ascii'))
-            elif main_action == 'recv':
-                # 非阻塞接受IP包
-                ip_pkg = network_layer.recv()
-                if ip_pkg == None:
-                    print('no receive!')
-                else:
-                    print(ip_pkg)
-            elif main_action == 'offline':
-                rip_worker.working_flag = False
-                for rname, detail in rip_worker.dis_vec.items():
-                    detail['cost'] = DV_INF
-                rip_worker.tear_down.append(rip_worker.route_name)
-            elif main_action == 'debug':
-                if user_args[1] == 'start':
-                    logger.disabled = False
-                if user_args[1] == 'stop':
-                    logger.disabled = True
-            elif main_action == 'sleep':
-                time.sleep(int(user_args[1]))
-            elif main_action == 'p':
-                logger.setLevel(logging.INFO)
-            elif main_action == 'o':
-                logger.setLevel(logging.DEBUG)
-            elif main_action == 'q':
-                os._exit(0)
+                elif main_action == 'send':
+                    # 发送信息
+                    network_layer.send(user_args[1], user_args[2], user_args[3].encode('ascii'))
+                elif main_action == 'recv':
+                    # 非阻塞接受IP包
+                    ip_pkg = network_layer.recv()
+                    if ip_pkg == None:
+                        print('no receive!')
+                    else:
+                        print(ip_pkg)
+                elif main_action == 'offline':
+                    rip_worker.working_flag = False
+                    for rname, detail in rip_worker.dis_vec.items():
+                        detail['cost'] = DV_INF
+                    rip_worker.tear_down.append(rip_worker.route_name)
+                elif main_action == 'debug':
+                    if user_args[1] == 'start':
+                        logger.disabled = False
+                    if user_args[1] == 'stop':
+                        logger.disabled = True
+                elif main_action == 'sleep':
+                    time.sleep(int(user_args[1]))
+                elif main_action == 'p':
+                    logger.setLevel(logging.INFO)
+                elif main_action == 'o':
+                    logger.setLevel(logging.DEBUG)
+                elif main_action == 'cost':
+                    _vip = user_args[1]
+                    _cost = (user_args[2])
+                    for intf in network_layer.interfaces:
+                        if intf.vip == _vip:
+                            logger.info('Cost %s -> %s changed to %d', rip_worker.route_name, intf.counter_name, _cost)
+                            rip_worker.dis_vec[intf.counter_name]['cost'] = _cost
+                            cost_msg = {
+                                "vip": intf.counter_vip,
+                                "cost": _cost
+                            }
+                            s = utilities.objEncode(cost_msg)
+                            pkg = route.IP_Package(intf.vip, intf.counter_vip, intf.counter_vip, 24, s)
+                            pkg.protocol = 121
+                            route.link_layer.send(pkg.to_bytes())
+                elif main_action == 'q':
+                    os._exit(0)
         except IndexError:
             print('invalid command!')
             continue
@@ -350,4 +344,38 @@ if __name__ == "__main__":
             # 捕获所有异常，并且打印错误信息
             print(traceback.format_exc())
             continue
+            # 解析参数
+            # if main_action == 'show':
+            #     if user_args[1] == 'interface':
+            #         route.link_layer.show_interface()
+            #     elif user_args[1] == 'tcp':
+            #         route.link_layer.show_tcp()
+            #     elif user_args[1] == 'route':
+            #         route.my_route_table.show()
+            #     elif user_args[1] == 'help':
+            #         print('This is help message!')
+            #         for help_msg in help_menu:
+            #             print('-'*40)
+            #             print(help_msg)
+            #     elif user_args[1] == 'dv':
+            #         rip_worker.show_dv()
+            #     elif user_args[1] == 'off':
+            #         print(rip_worker.tear_down)
+            # elif main_action == 'add':
+            #     # 往路由表中增加表项
+            #     route.my_route_table.update_item(user_args[1], int(user_args[2]), user_args[3])
+            # elif main_action == 'delete':
+            #     # 删除某一项
+            #     route.my_route_table.delete_item(user_args[1], int(user_args[2]))
+            #     for rname, lvip_mask in rip_worker.topo.items():
+            #         for lvip, lmask in lvip_mask:
+            #             if user_args[1] == lvip and int(user_args[2]) == lmask:
+            #                 if rname in rip_worker.direct_routes:
+            #                     print("Cannot delete, {} is a directly connected route")
+            #                 else:
+            #                     logger.info('[RIP] Reset cost %s to %s to INF', network_layer.name, rname)
+            #                     rip_worker.dis_vec[rname]['cost'] = DV_INF
+            #                     rip_worker.dis_vec[rname]['path'] = []
+
+ 
 
