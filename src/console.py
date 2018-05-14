@@ -53,46 +53,50 @@ class Console():
             try:
                 if user_input == '':
                     continue
-                # 拆分用户参数
-                user_args = user_input.split()
-                main_action = user_args[0]
+                user_lines = user_input.split(';')
+                for line in user_lines:
+                    # 拆分用户参数
+                    user_args = line.split()
+                    main_action = user_args[0]
 
-                # 解析参数
-                if main_action == 'show':
-                    if user_args[1] == 'interface':
-                        self.route.link_layer.show_interface()
-                    elif user_args[1] == 'tcp':
-                        self.route.link_layer.show_tcp()
-                    elif user_args[1] == 'route':
-                        self.route.my_route_table.show()
-                    elif user_args[1] == 'help':
-                        print('This is help message!')
-                        for help_msg in self.help_menu:
-                            print('-'*40)
-                            print(help_msg)
-                elif main_action == 'add':
-                    # 往路由表中增加表项
-                    self.route.my_route_table.update_item(user_args[1], int(user_args[2]), user_args[3])
-                elif main_action == 'delete':
-                    # 删除某一项
-                    self.route.my_route_table.delete_item(user_args[1], int(user_args[2]))
-                elif main_action == 'send':
-                    # 发送信息
-                    self.network_layer.send(user_args[1], user_args[2], user_args[3].encode('ascii'))
-                elif main_action == 'recv':
-                    # 非阻塞接受IP包
-                    ip_pkg = self.network_layer.recv()
-                    if ip_pkg == None:
-                        print('no receive!')
-                    else:
-                        print(ip_pkg)
-                elif main_action == 'quit':
-                    os._exit(0)
-                elif main_action == 'debug':
-                    if user_args[1] == 'start':
-                        logger.disabled = False
-                    if user_args[1] == 'stop':
-                        logger.disabled = True
+                    # 解析参数
+                    if main_action == 'show':
+                        if user_args[1] == 'interface':
+                            self.route.link_layer.show_interface()
+                        elif user_args[1] == 'tcp':
+                            self.route.link_layer.show_tcp()
+                        elif user_args[1] == 'route':
+                            self.route.my_route_table.show()
+                        elif user_args[1] == 'help':
+                            print('This is help message!')
+                            for help_msg in self.help_menu:
+                                print('-'*40)
+                                print(help_msg)
+                    elif main_action == 'add':
+                        # 往路由表中增加表项
+                        self.route.my_route_table.update_item(user_args[1], int(user_args[2]), user_args[3])
+                    elif main_action == 'delete':
+                        # 删除某一项
+                        self.route.my_route_table.delete_item(user_args[1], int(user_args[2]))
+                    elif main_action == 'send':
+                        # 发送信息
+                        self.network_layer.send(user_args[1], user_args[2], user_args[3].encode('ascii'))
+                    elif main_action == 'recv':
+                        # 非阻塞接受IP包
+                        ip_pkg = self.network_layer.recv()
+                        if ip_pkg == None:
+                            print('no receive!')
+                        else:
+                            print(ip_pkg)
+                    elif main_action == 'debug':
+                        if user_args[1] == 'start':
+                            logger.disabled = False
+                        if user_args[1] == 'stop':
+                            logger.disabled = True
+                    elif main_action == 'sleep':
+                        time.sleep(int(user_args[1]))
+                    elif main_action == 'quit':
+                        os._exit(0)
             except IndexError:
                 print('invalid command!')
                 continue
