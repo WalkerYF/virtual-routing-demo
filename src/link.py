@@ -3,6 +3,7 @@ import socket
 import json
 import config
 import threading
+import traceback
 import logging
 import queue
 from prettytable import PrettyTable 
@@ -216,6 +217,8 @@ class DataLinkLayer():
                             rsock.sendBytes(ip_pkg)
                             return len(ip_pkg)
                         except Exception as e:
+                            # 捕获所有异常，并且打印错误信息
+                            logger.debug(traceback.format_exc())
                             return -1
 
     def receive(self) -> Optional[bytes]:

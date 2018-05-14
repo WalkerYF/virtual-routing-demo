@@ -13,7 +13,15 @@ import route
 import console
 from include import utilities
 from include import shortestPath
-GLOBAL_ROUTE_INFORMATIOIN_FILE = '../test_controller/all_route.json'
+# 运行目录
+ROOT='.'
+
+# 在src文件夹下运行
+# CONFIG_ROOT=ROOT+'/../test_controller'
+
+# 在test文件夹下运行
+CONFIG_ROOT=ROOT
+GLOBAL_ROUTE_INFORMATIOIN_FILE = CONFIG_ROOT+'/all_route.json'
 logging.basicConfig(
     # filename='../../log/client.{}.log'.format(__name__),
     format='[%(asctime)s - %(name)s - %(levelname)s] : \n%(message)s\n',
@@ -141,7 +149,7 @@ def init_global_route_table(config_file: str, src : int) -> None:
     """
     logger.debug("[spfa] init graph\n %s", format(graph))
     for filename in json_files['filenames']:
-        f = open('../test_controller/' + filename) #TODO:(YB) refactor. let it be path.resolve
+        f = open(CONFIG_ROOT + '/' + filename) #TODO:(YB) refactor. let it be path.resolve
         json_data = json.load(f)
         f.close()
 
