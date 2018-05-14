@@ -108,6 +108,10 @@ class Console():
 
 
 if __name__ == "__main__":
+    main()
+
+def main():
+    """ test """
     # 如果是作为模块被别的模块使用，就最好不要导入其他的名称空间了
     import route
     # 初始化网络层(内部还会初始化链路层)
