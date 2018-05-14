@@ -87,7 +87,8 @@ class RouteTable():
             self.route_table.drop(index, inplace=True)
         except Exception as e:
             # print ('e.message:\t{}'.format(e.message))
-            print(traceback.format_exc())
+            # print(traceback.format_exc())
+            pass
     
     def is_local_link(self, dest_net : str, net_mask : int=32) -> bool:
         """ 检测这个是不是本地链路的ip，应该直接拿完整的ip地址进行比较 """

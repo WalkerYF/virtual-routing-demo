@@ -13,6 +13,7 @@ from prompt_toolkit import prompt
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.contrib.completers import WordCompleter
+from prettytable import PrettyTable
 
 logging.basicConfig(
     # filename='../../log/client.{}.log'.format(__name__),
@@ -22,7 +23,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-DV_INF = -1
+DV_INF = int(1E9)
 
 class RIP(threading.Thread):
     def __init__(self, route_name, interfaces):
@@ -44,13 +45,14 @@ class RIP(threading.Thread):
         self.direct_routes = [intf.counter_name for intf in interfaces]
         self.next_hop = {intf.counter_name: intf.counter_vip for intf in interfaces}
         self.received_set = set()
+        self.working_flag = True
 
     def run(self):
         logger.debug("rip protocol is working")
         while True:
             logger.debug("[RIP] Broadcasting RIP msg")
             self.broadcast(self.interfaces)
-            time.sleep(10)
+            time.sleep(2)
 
     def broadcast(self, interfaces):
         md5 = hashlib.md5()
@@ -95,9 +97,24 @@ class RIP(threading.Thread):
                     continue
                 cost = detail['cost']
                 newcost = self.dis_vec[medium]['cost'] + cost
-                if dest == self.route_name:
-                    pass
-                elif dest not in self.dis_vec:
+                if cost >= DV_INF:
+                    if dest == self.route_name:
+                        logger.info("Direct link cost to {} reset to INF, tear down all connection with it".format(medium))
+                        for vip, nm in self.topo[medium]:
+                            route.my_route_table.delete_item(vip, nm)
+                            route.my_route_table.delete_item(utilities.get_subnet(vip, nm), nm)
+                            self.dis_vec[medium] = {'cost': DV_INF, 'path': []}
+                            for intf in network_layer.interfaces:
+                                if intf.counter_name == medium:
+                                    intf.status = "offline"
+                    else:
+                        logger.info("Link cost to {} reset to INF, tear down all connection with it".format(medium))
+                        for vip, nm in self.topo[medium]:
+                            route.my_route_table.delete_item(vip, nm)
+                            self.dis_vec[medium] = {'cost': DV_INF, 'path': []}
+                elif dest == self.route_name:
+                    continue
+                elif dest not in self.dis_vec.keys():
                     self.dis_vec[dest] = \
                         {
                             "cost": newcost,
@@ -109,6 +126,7 @@ class RIP(threading.Thread):
                         logger.info("[RIP] Updating route table\n{} {} THROUTH {}".format(vip, netmask, self.next_hop[medium]))
                         route.my_route_table.update_item(vip, netmask, self.next_hop[medium])
                 else:
+                    # print(dest, newcost, self.dis_vec[dest]['cost'])
                     if newcost < self.dis_vec[dest]['cost']:
                         self.dis_vec[dest]['cost'] = newcost
                         self.dis_vec[dest]['path'] = detail['path'].insert(0, medium)
@@ -120,6 +138,12 @@ class RIP(threading.Thread):
             if msg_used:
                 self.received_set.add(rip_msg['md5'])
 
+    def show_dv(self):
+        x = PrettyTable(['Dest', 'Cost', 'Path'])
+        x.padding_width = 1
+        for rname, detail in self.dis_vec.items():
+            x.add_row([rname, detail['cost'], detail['path']])
+        print(x)
 
 class NetworkLayerListener(threading.Thread):
     """
@@ -190,12 +214,24 @@ if __name__ == "__main__":
                     for help_msg in help_menu:
                         print('-'*40)
                         print(help_msg)
+                elif user_args[1] == 'dv':
+                    rip_worker.show_dv()
             elif main_action == 'add':
                 # 往路由表中增加表项
                 route.my_route_table.update_item(user_args[1], int(user_args[2]), user_args[3])
             elif main_action == 'delete':
                 # 删除某一项
                 route.my_route_table.delete_item(user_args[1], int(user_args[2]))
+                for rname, lvip_mask in rip_worker.topo.items():
+                    for lvip, lmask in lvip_mask:
+                        if user_args[1] == lvip and int(user_args[2]) == lmask:
+                            if rname in rip_worker.direct_routes:
+                                print("Cannot delete, {} is a directly connected route")
+                            else:
+                                logger.info('[RIP] Reset cost %s to %s to INF', network_layer.name, rname)
+                                rip_worker.dis_vec[rname]['cost'] = DV_INF
+                                rip_worker.dis_vec[rname]['path'] = []
+
             elif main_action == 'send':
                 # 发送信息
                 network_layer.send(user_args[1], user_args[2], user_args[3].encode('ascii'))
@@ -206,6 +242,10 @@ if __name__ == "__main__":
                     print('no receive!')
                 else:
                     print(ip_pkg)
+            elif main_action == 'offline':
+                rip_worker.working_flag = False
+                for rname, detail in rip_worker.dis_vec.items():
+                    detail['cost'] = DV_INF
             elif main_action == 'q':
                 os._exit(0)
         except IndexError:
