@@ -10,7 +10,17 @@ from include import shortestPath
 from typing import Dict, List, Tuple
 import console
 from NetworkLayerListerner import NetworkLayerListener
-GLOBAL_ROUTE_INFORMATION_FILE = '../test/all_route.json'
+
+# 运行目录
+ROOT='.'
+
+# 在src文件夹下运行
+# CONFIG_ROOT=ROOT+'/../test_controller'
+
+# 在test文件夹下运行
+CONFIG_ROOT=ROOT
+GLOBAL_ROUTE_INFORMATION_FILE = CONFIG_ROOT+'/all_route.json'
+
 config_name = sys.argv[1]
 with open(config_name, 'r') as config_f:
     config = json.load(config_f)
@@ -49,7 +59,7 @@ def init_global_route_table(network_layer, config_file: str) -> None:
     graph = [[-1 for i in range(V)] for j in range(V)] # type: List[List[int]]
     logger.debug("[spfa] init graph\n %s", format(graph))
     for filename in json_files['filenames']:
-        f = open('../test/' + filename) #TODO:(YB) refactor. let it be path.resolve
+        f = open(CONFIG_ROOT + '/' + filename) #TODO:(YB) refactor. let it be path.resolve
         json_data = json.load(f)
         f.close()
 
@@ -97,7 +107,11 @@ def init_global_route_table(network_layer, config_file: str) -> None:
             logger.info('[1]add item into route table\n \
                 %s, %s, %s', ip, netmask, dst_ip)
         else:
-            prev_ip, prev_netmask = index2interface[prev_index]
+            try_get = index2interface.get(prev_index)
+            while try_get is None:
+                prev_index = prev[prev_index]
+                try_get = index2interface.get(prev_index)
+            prev_ip, prev_netmask = try_get
             route.my_route_table.update_item(ip, netmask, prev_ip)
             logger.info('[2]add item into route table\n \
                 %s, %s, %s', ip, netmask, prev_ip)
