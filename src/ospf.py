@@ -86,9 +86,9 @@ class TrackingNeighbourAlive(threading.Thread):
             pass
     def run(self):
         while True:
-            time.sleep(10)
+            time.sleep(15)
             self.tracking_direct_router_neighbour.run_ping()
-            time.sleep(5)
+            time.sleep(10)
             #logger.debug('-----------------tracking is alive running-----------------')
             for interface in self.track:
                 #logger.debug('--------------interface----------\n%s', interface)
