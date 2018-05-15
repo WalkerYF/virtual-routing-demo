@@ -36,6 +36,8 @@ Interface = link.Host
 link_layer = link.DataLinkLayer()
 my_route_table = RouteTable()
 
+global_is_alive = 1
+
 # 注意! 下面的两个队列存放对象，而不是二进制数据
 # 用来存放rip协议的ip包
 rip_recv_package = queue.Queue(0) # type: Queue[IP_Package]
@@ -116,23 +118,25 @@ class MonitorLinkLayer(threading.Thread):
             # 查看该包是否是发给本机的
             ip_package = IP_Package.bytes_package_to_object(recv_data)
             is_local = my_route_table.is_local_link(ip_package.final_ip)
-            if is_local:
-                # 网络层要了IP包，并交给了更上层的协议
-                if ip_package.protocol == 120:
-                    # RIP协议
-                    rip_recv_package.put(ip_package)
-                elif ip_package.protocol == 119:
-                    # OSPF协议
-                    ospf_recv_package.put(ip_package)
-                elif ip_package.protocol == 121:
-                    cost_recv_package.put(ip_package)
-                elif ip_package.protocol == 100:
-                    ping_recv_package.put(ip_package)
-                else :
-                    route_recv_package.put(ip_package)
-            else:
-                # 网络层修改ip包，要转发
-                route_send_package.put(ip_package)
+            is_alive = global_is_alive
+            if is_alive:
+                if is_local:
+                    # 网络层要了IP包，并交给了更上层的协议
+                    if ip_package.protocol == 120:
+                        # RIP协议
+                        rip_recv_package.put(ip_package)
+                    elif ip_package.protocol == 119:
+                        # OSPF协议
+                        ospf_recv_package.put(ip_package)
+                    elif ip_package.protocol == 121:
+                        cost_recv_package.put(ip_package)
+                    elif ip_package.protocol == 100:
+                        ping_recv_package.put(ip_package)
+                    else :
+                        route_recv_package.put(ip_package)
+                else:
+                    # 网络层修改ip包，要转发
+                    route_send_package.put(ip_package)
 
 my_package_forward_thread = PkgForwardThread()
 my_monitor_link_layer = MonitorLinkLayer()

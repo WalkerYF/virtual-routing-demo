@@ -87,6 +87,12 @@ class Console():
                             logger.disabled = True
                     elif main_action == 'sleep':
                         time.sleep(int(user_args[1]))
+                    elif main_action == 'suspend':
+                        self.route.global_is_alive = 0
+                        print('logout!  status:{}'.format(self.route.global_is_alive))
+                    elif main_action == 'activate':
+                        self.route.global_is_alive = 1
+                        print('login!  status:{}'.format(self.route.global_is_alive))
                     elif main_action == 'quit':
                         os._exit(0)
             except IndexError:
