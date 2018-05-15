@@ -45,6 +45,7 @@ known_msgid_list = []
 graph = [[-1 for i in range(V)] for j in range(V)] # type: List[List[int]]
 
 def logout_refresh_route_table(index):
+    logger.info('refreshing router table ,logout index is %d', index)
     for i in range(V):
         graph[index][i] = -1
         graph[i][index] = -1
@@ -92,15 +93,16 @@ class TrackingNeighbourAlive(threading.Thread):
             for interface in self.track:
                 #logger.debug('--------------interface----------\n%s', interface)
                 if self.track[interface] == 0:
-                    cvip = interface[1]
-                    logger.info('######## ip %s logout! #########', cvip)
-
-                    #index = interface2index[(cvip, 24)] #TODO:: hard code subnet
-                    #logout_refresh_route_table(index)
-                    #self.broadcast_logout(cvip)
-
                     if interface not in self.dead_interfaces:
                         self.dead_interfaces.append(interface)
+                        cvip = interface[1]
+                        logger.info('######## ip %s logout! #########', cvip)
+
+                        # broadcast
+                        index = interface2index[(cvip, 24)] #TODO:: hard code subnet
+                        logger.info('broadcast logout index ##### %d', index)
+                        logout_refresh_route_table(index)
+                        self.broadcast_logout(index) #TODO: here, continue. not work
                     # self.track.remove(interface)
                 else:
                     self.track[interface] = 0
@@ -111,6 +113,8 @@ class TrackingNeighbourAlive(threading.Thread):
                 logger.info('[logout] logout index is %d\n', index)
     def broadcast_logout(self, index):
         global msgID
+        logger.debug('###########broadcasting!!!!!########')
+        logger.debug('broadcast,  id is %d, from index %d', msgID, ROUTER_INDEX)
         for interface in self.interfaces:
             src_ip, dst_ip = interface
             msg = {
@@ -177,18 +181,19 @@ class NetworkLayerListener(threading.Thread):
                     logger.info('ping response. I know %s reachable', sip)
                     self.tracking_neighbour_alive.wakeup(dip, sip)
             elif msg.protocol == 119:
-                logger.info('why??? tell me why')
-                # logger.info('get protocol 119, data is\n%s', msg)
-                # data = utilities.objDecode(msg.data)
-                # msgid = data['id']
-                # if msgid in known_msgid_list:
-                #     continue
-                # self.broadcastMsg(data, 119)
-                # known_msgid_list.append(msgid)
-                # msg_type = data['type']
-                # if msg_type == 'logout':
-                #     lgout_index = data['index']
-                #     logout_refresh_route_table(lgout_index)
+                data = utilities.objDecode(msg.data)
+                msgid = data['id']
+                if msgid in known_msgid_list:
+                    logger.debug('already know %d, continue', msgid)
+                    continue
+                known_msgid_list.append(msgid)
+                self.broadcastMsg(data, 119)
+                msg_type = data['type']
+                if msg_type == 'logout':
+                    # pass #TODO: here, maybe bugs
+                    lgout_index = data['index']
+                    logger.info('get logout broadcast. now refresh route table according to broadcast %d', lgout_index)
+                    # logout_refresh_route_table(lgout_index)
             else:
                 logger.debug('recv msg!!\n%s', msg)
     def broadcastMsg(self, data, protocol = 0):
@@ -196,6 +201,7 @@ class NetworkLayerListener(threading.Thread):
         for interface in interfaces:
             sip = interface.vip
             dip = interface.counter_vip
+            logger.debug('broadcast to ip %s', dip)
             self.network_layer.send(sip, dip, utilities.objEncode(data), protocol)
                     
                 
