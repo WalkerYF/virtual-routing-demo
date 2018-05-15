@@ -29,6 +29,7 @@ config_data = json.load(f)
 f.close()
 ROUTER_INDEX = config_data['index']
 
+disable_node = []
 interface2index = {} # type: Dict[Tuple[str, str], int]
 index2interface = {} # type: Dict[int, Tuple[str, str]]
 
@@ -45,6 +46,9 @@ known_msgid_list = []
 graph = [[-1 for i in range(V)] for j in range(V)] # type: List[List[int]]
 
 def logout_refresh_route_table(index):
+    if index in disable_node:
+        return
+    disable_node.append(index)
     logger.info('refreshing router table ,logout index is %d', index)
     for i in range(V):
         graph[index][i] = -1
@@ -86,9 +90,9 @@ class TrackingNeighbourAlive(threading.Thread):
             pass
     def run(self):
         while True:
-            time.sleep(15)
+            time.sleep(5)
             self.tracking_direct_router_neighbour.run_ping()
-            time.sleep(10)
+            time.sleep(3)
             #logger.debug('-----------------tracking is alive running-----------------')
             for interface in self.track:
                 #logger.debug('--------------interface----------\n%s', interface)
@@ -184,7 +188,7 @@ class NetworkLayerListener(threading.Thread):
                 data = utilities.objDecode(msg.data)
                 msgid = data['id']
                 if msgid in known_msgid_list:
-                    logger.debug('already know %d, continue', msgid)
+                    # logger.debug('already know %d, continue', msgid)
                     continue
                 known_msgid_list.append(msgid)
                 self.broadcastMsg(data, 119)
@@ -193,7 +197,7 @@ class NetworkLayerListener(threading.Thread):
                     # pass #TODO: here, maybe bugs
                     lgout_index = data['index']
                     logger.info('get logout broadcast. now refresh route table according to broadcast %d', lgout_index)
-                    # logout_refresh_route_table(lgout_index)
+                    logout_refresh_route_table(lgout_index)
             else:
                 logger.debug('recv msg!!\n%s', msg)
     def broadcastMsg(self, data, protocol = 0):
