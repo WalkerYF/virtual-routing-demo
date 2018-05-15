@@ -1,6 +1,9 @@
 {
     "name": "B", 
     "index": 1,
+    "is_controller": false,
+    "controller_index": 2,
+    "controller_name": "C",
     "interfaces": [
         {
             "cost": 1,
@@ -13,7 +16,8 @@
             "counter_pip": "127.0.0.1",
             "counter_port": 7011,
             "counter_index": 0,
-            "counter_name": "A"
+            "counter_name": "A",
+            "weight": 1
         },
         {
             "cost": 1,
@@ -26,7 +30,8 @@
             "counter_pip": "127.0.0.1",
             "counter_port": 7031,
             "counter_index": 2,
-            "counter_name": "C"
+            "counter_name": "C",
+            "weight": 1
         },
         {
             "cost": 1,
@@ -39,7 +44,8 @@
             "counter_pip": "127.0.0.1",
             "counter_port": 7042,
             "counter_index": 4,
-            "counter_name": "E"
+            "counter_name": "E",
+            "weight": 1
         }
     ]
 }
