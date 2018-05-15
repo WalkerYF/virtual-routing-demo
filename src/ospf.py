@@ -42,6 +42,16 @@ V = len(json_files['filenames'])
 # graph 是用于求最短路的邻接矩阵
 graph = [[-1 for i in range(V)] for j in range(V)] # type: List[List[int]]
 
+def logout_refresh_route_table(index):
+    for i in range(V):
+        graph[index][i] = -1
+        graph[i][index] = -1
+    ret = calculate_shortest_path(ROUTER_INDEX)
+    route.my_route_table.reset_route_table()
+    for a, b, c in ret:
+        route.my_route_table.update_item(a, b, c)
+    logger.info('refresh route table fishied.\n%s', ret)
+
 class TrackingNeighbourAlive(threading.Thread):
     def __init__(self, network_layer, interfaces) -> None:
         threading.Thread.__init__(self)
@@ -81,6 +91,9 @@ class TrackingNeighbourAlive(threading.Thread):
             for interface in self.dead_interfaces:
                 ip = interface[1]
                 logger.info('[logout] logout ip is %s', ip)
+                index = interface2index[(ip, 24)]
+                logger.info('[logout] logout index is %d\n', index)
+                logout_refresh_route_table(index)
 
         
 class TrackingDirectRouterNeighbour():
