@@ -4,21 +4,13 @@ import json
 import config
 import threading
 import traceback
-import logging
 import queue
 from prettytable import PrettyTable 
 from include import rdt_socket
 from include import utilities
 from typing import List
 from include.utilities import IP_Package
-logging.basicConfig(
-    # filename='../../log/client.{}.log'.format(__name__),
-    format='[%(asctime)s - %(name)s - %(levelname)s] : \n%(message)s\n',
-    # datefmt='%M:%S',
-)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
-# logger.setLevel(logging.INFO)
+from include.logger import logger
 
 link_buf = queue.Queue(0)
 
