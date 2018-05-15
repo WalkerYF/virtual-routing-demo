@@ -6,13 +6,13 @@ $ python3 controller.py ../test/routeA.json
 import sys
 import json
 import threading
-import logging
 import time
 
 import route
 import console
 from include import utilities
 from include import shortestPath
+from include.logger import logger
 # 运行目录
 ROOT='.'
 
@@ -22,13 +22,6 @@ ROOT='.'
 # 在test文件夹下运行
 CONFIG_ROOT=ROOT
 GLOBAL_ROUTE_INFORMATIOIN_FILE = CONFIG_ROOT+'/all_route.json'
-logging.basicConfig(
-    # filename='../../log/client.{}.log'.format(__name__),
-    format='[%(asctime)s - %(name)s - %(levelname)s] : \n%(message)s\n',
-    # datefmt='%M:%S',
-)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 CONFIG_NAME = sys.argv[1]
 f = open(CONFIG_NAME, 'rt')

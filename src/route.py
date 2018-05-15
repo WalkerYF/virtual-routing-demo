@@ -19,7 +19,6 @@ import threading
 from include import rdt_socket
 import link
 import sys
-import logging
 import unittest
 import pdb
 import queue
@@ -28,17 +27,8 @@ import threading
 from route_table import RouteTable
 from include.utilities import IP_Package
 from include import shortestPath
+from include.logger import logger
 import time
-
-
-logging.basicConfig(
-    # filename='../../log/client.{}.log'.format(__name__),
-    format='[%(asctime)s - %(name)s - %(levelname)s] : \n%(message)s\n',
-    # datefmt='%M:%S',
-)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-# logger.setLevel(logging.INFO)
 
 # using Interface = Host;
 Interface = link.Host
