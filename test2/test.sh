@@ -44,18 +44,18 @@ tmux split-window -p 66 -t  "init":0.2
 tmux split-window -p 50 -t "init":0.5
 
 # 切换到指定目录并运行服务
-tmux send -t "init":0.0 "sleep 0 ; $PYTHON $SRC_FILE ${ROUTE_LIST[0]}" Enter
-tmux send -t "init":0.1 "sleep 0.2 ; $PYTHON $SRC_FILE ${ROUTE_LIST[1]}" Enter
-tmux send -t "init":0.2 "sleep 0.4 ; $PYTHON $SRC_FILE ${ROUTE_LIST[2]}" Enter
-tmux send -t "init":0.3 "sleep 0.6 ; $PYTHON $SRC_FILE ${ROUTE_LIST[3]}" Enter
-tmux send -t "init":0.4 "sleep 0.8 ; $PYTHON $SRC_FILE ${ROUTE_LIST[4]}" Enter
-tmux send -t "init":0.5 "sleep 1 ; $PYTHON $SRC_FILE ${ROUTE_LIST[5]}" Enter
-tmux send -t "init":0.6 "sleep 1.2 ; $PYTHON $SRC_FILE ${ROUTE_LIST[6]}" Enter
+tmux send -t "init":0.0 "sleep 0.2 ; $PYTHON $SRC_FILE ${ROUTE_LIST[0]}" Enter
+tmux send -t "init":0.1 "sleep 0.4 ; $PYTHON $SRC_FILE ${ROUTE_LIST[1]}" Enter
+tmux send -t "init":0.2 "sleep 0.6 ; $PYTHON $SRC_FILE ${ROUTE_LIST[2]}" Enter
+tmux send -t "init":0.3 "sleep 0.8 ; $PYTHON $SRC_FILE ${ROUTE_LIST[3]}" Enter
+tmux send -t "init":0.4 "sleep 1.0 ; $PYTHON $SRC_FILE ${ROUTE_LIST[4]}" Enter
+tmux send -t "init":0.5 "sleep 1.2 ; $PYTHON $SRC_FILE ${ROUTE_LIST[5]}" Enter
+tmux send -t "init":0.6 "sleep 1.4 ; $PYTHON $SRC_FILE ${ROUTE_LIST[6]}" Enter
 
 # 给每一个路由器发送一个初始化运行脚本
 # 注意如果脚本只有一条命令的话不要在后面加分号;不然会出问题
 # 给路由器A发送初始化脚本
-tmux send -t "init":0.0 "$COMMAND_FOR_ALL;you can add some" Enter
+tmux send -t "init":0.0 "$COMMAND_FOR_ALL" Enter
 
 # 给路由器B发送初始化脚本
 tmux send -t "init":0.1 "$COMMAND_FOR_ALL" Enter
