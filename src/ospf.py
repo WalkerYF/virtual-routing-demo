@@ -50,6 +50,39 @@ V = len(json_files['filenames'])
 # graph 是用于求最短路的邻接矩阵
 graph = [[-1 for i in range(V)] for j in range(V)] # type: List[List[int]]
 
+class TrackingNeighbourAlive(threading.Thread):
+    def __init__(self, network_layer, interfaces) -> None:
+        threading.Thread.__init__(self)
+        self.network_layer = network_layer
+        self.interfaces = []
+        for interface in interfaces:
+            self.interfaces.append((interface.vip, interface.counter_vip))
+        self.dead_interfaces = []
+        self.track = {}
+        for interface in self.interfaces:
+            self.track[interface] = 0
+    def wakeup(self, sip, dip):
+        # logger.info('wake up sip %s, dip %s', sip, dip)
+        self.track[(sip, dip)] = 1
+    def run(self):
+        while True:
+            time.sleep(7)
+            logger.debug('-----------------tracking is alive running-----------------')
+            for interface in self.track:
+                logger.debug('--------------interface----------\n%s', interface)
+                if self.track[interface] == 0:
+                    cvip = interface[1]
+                    logger.info('######## ip %s logout! #########', cvip)
+                    if interface not in self.dead_interfaces:
+                        self.dead_interfaces.append(interface)
+                    # self.track.remove(interface)
+                else:
+                    self.track[interface] = 0
+            for interface in self.dead_interfaces:
+                ip = interface[1]
+                logger.info('-------------------logout ip is %s------------------', ip)
+
+        
 class TrackingDirectRouterNeighbour(threading.Thread):
     def __init__(self, network_layer) -> None:
         threading.Thread.__init__(self)
@@ -74,6 +107,9 @@ class NetworkLayerListener(threading.Thread):
     def __init__(self, network_layer) -> None:
         threading.Thread.__init__(self)
         self.network_layer = network_layer
+        self.tracking_neighbour_alive = TrackingNeighbourAlive(network_layer, network_layer.interfaces)
+        logger.info('########## start neigbour active ###########')
+        self.tracking_neighbour_alive.start()
     def run(self):
         logger.info('network layer listener begin to work...')
         while True:
@@ -101,7 +137,9 @@ class NetworkLayerListener(threading.Thread):
                     }
                     self.network_layer.send(dip, sip, utilities.objEncode(msg), 100)
                 if data['code'] == 1:
+                    # get ping response from it
                     logger.info('ping response. I know %s reachable', sip)
+                    self.tracking_neighbour_alive.wakeup(dip, sip)
                     
                 
 
