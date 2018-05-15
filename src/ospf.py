@@ -39,6 +39,8 @@ f.close()
 logger.debug("[controller] read all files\n %s ", format(json_files))
 
 V = len(json_files['filenames'])
+msgID = ROUTER_INDEX
+known_msgid_list = []
 # graph 是用于求最短路的邻接矩阵
 graph = [[-1 for i in range(V)] for j in range(V)] # type: List[List[int]]
 
@@ -51,6 +53,15 @@ def logout_refresh_route_table(index):
     for a, b, c in ret:
         route.my_route_table.update_item(a, b, c)
     logger.info('refresh route table fishied.\n%s', ret)
+def onchange_refresh_route_table(src, dst, changeto):
+    graph[src][dst] = changeto
+    graph[dst][src] = changeto
+    ret = calculate_shortest_path(ROUTER_INDEX)
+    route.my_route_table.reset_route_table()
+    for item in ret:
+        route.my_route_table.update_item(*item)
+    logger.info('refresh route table fishied.\n%s', ret)
+    
 
 class TrackingNeighbourAlive(threading.Thread):
     def __init__(self, network_layer, interfaces) -> None:
@@ -83,6 +94,11 @@ class TrackingNeighbourAlive(threading.Thread):
                 if self.track[interface] == 0:
                     cvip = interface[1]
                     logger.info('######## ip %s logout! #########', cvip)
+
+                    #index = interface2index[(cvip, 24)] #TODO:: hard code subnet
+                    #logout_refresh_route_table(index)
+                    #self.broadcast_logout(cvip)
+
                     if interface not in self.dead_interfaces:
                         self.dead_interfaces.append(interface)
                     # self.track.remove(interface)
@@ -93,7 +109,18 @@ class TrackingNeighbourAlive(threading.Thread):
                 logger.info('[logout] logout ip is %s', ip)
                 index = interface2index[(ip, 24)]
                 logger.info('[logout] logout index is %d\n', index)
-                logout_refresh_route_table(index)
+    def broadcast_logout(self, index):
+        global msgID
+        for interface in self.interfaces:
+            src_ip, dst_ip = interface
+            msg = {
+                "type": "logout",
+                "index": index,
+                "id": msgID
+            }
+            msgID += V
+            self.network_layer.send(src_ip ,dst_ip, utilities.objEncode(msg), 119)
+
 
         
 class TrackingDirectRouterNeighbour():
@@ -149,8 +176,27 @@ class NetworkLayerListener(threading.Thread):
                     # get ping response from it
                     logger.info('ping response. I know %s reachable', sip)
                     self.tracking_neighbour_alive.wakeup(dip, sip)
+            elif msg.protocol == 119:
+                logger.info('why??? tell me why')
+                # logger.info('get protocol 119, data is\n%s', msg)
+                # data = utilities.objDecode(msg.data)
+                # msgid = data['id']
+                # if msgid in known_msgid_list:
+                #     continue
+                # self.broadcastMsg(data, 119)
+                # known_msgid_list.append(msgid)
+                # msg_type = data['type']
+                # if msg_type == 'logout':
+                #     lgout_index = data['index']
+                #     logout_refresh_route_table(lgout_index)
             else:
                 logger.debug('recv msg!!\n%s', msg)
+    def broadcastMsg(self, data, protocol = 0):
+        interfaces = self.network_layer.interfaces
+        for interface in interfaces:
+            sip = interface.vip
+            dip = interface.counter_vip
+            self.network_layer.send(sip, dip, utilities.objEncode(data), protocol)
                     
                 
 
