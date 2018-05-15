@@ -39,7 +39,6 @@ ROUTER_INDEX = config_data['index']
 interface2index = {} # type: Dict[Tuple[str, str], int]
 index2interface = {} # type: Dict[int, Tuple[str, str]]
 
-
 # config_file中的内容是，所有test/route*.json的文件的文件名
 f = open(GLOBAL_ROUTE_INFORMATIOIN_FILE, 'rt')
 json_files = json.load(f)
@@ -61,15 +60,23 @@ class TrackingNeighbourAlive(threading.Thread):
         self.track = {}
         for interface in self.interfaces:
             self.track[interface] = 0
+
+        self.tracking_direct_router_neighbour = TrackingDirectRouterNeighbour(self.network_layer)
     def wakeup(self, sip, dip):
         # logger.info('wake up sip %s, dip %s', sip, dip)
         self.track[(sip, dip)] = 1
+        try:
+            self.dead_interfaces.remove((sip,dip))
+        except Exception:
+            pass
     def run(self):
         while True:
-            time.sleep(7)
-            logger.debug('-----------------tracking is alive running-----------------')
+            time.sleep(10)
+            self.tracking_direct_router_neighbour.run_ping()
+            time.sleep(5)
+            #logger.debug('-----------------tracking is alive running-----------------')
             for interface in self.track:
-                logger.debug('--------------interface----------\n%s', interface)
+                #logger.debug('--------------interface----------\n%s', interface)
                 if self.track[interface] == 0:
                     cvip = interface[1]
                     logger.info('######## ip %s logout! #########', cvip)
@@ -80,27 +87,24 @@ class TrackingNeighbourAlive(threading.Thread):
                     self.track[interface] = 0
             for interface in self.dead_interfaces:
                 ip = interface[1]
-                logger.info('-------------------logout ip is %s------------------', ip)
+                logger.info('[logout] logout ip is %s', ip)
 
         
-class TrackingDirectRouterNeighbour(threading.Thread):
+class TrackingDirectRouterNeighbour():
     def __init__(self, network_layer) -> None:
-        threading.Thread.__init__(self)
         self.network_layer = network_layer
-    def run(self):
+    def run_ping(self):
         logger.info("tracking direct router neighbor threading run...")
-        while True:
-            time.sleep(5)
-            for interface in self.network_layer.interfaces:
-                src_ip = interface.vip 
-                dst_ip = interface.counter_vip
-                netmask = interface.netmask
-                msg = {
-                    'code': 0,
-                    'msg': "are you still here?"
-                }
-                self.network_layer.send(src_ip, dst_ip, utilities.objEncode(msg), 100)
-                logger.debug('send ping from %s to %s', src_ip, dst_ip)
+        for interface in self.network_layer.interfaces:
+            src_ip = interface.vip 
+            dst_ip = interface.counter_vip
+            netmask = interface.netmask
+            msg = {
+                'code': 0,
+                'msg': "are you still here?"
+            }
+            self.network_layer.send(src_ip, dst_ip, utilities.objEncode(msg), 100)
+            logger.debug('send ping from %s to %s', src_ip, dst_ip)
 
 
 class NetworkLayerListener(threading.Thread):
@@ -108,7 +112,6 @@ class NetworkLayerListener(threading.Thread):
         threading.Thread.__init__(self)
         self.network_layer = network_layer
         self.tracking_neighbour_alive = TrackingNeighbourAlive(network_layer, network_layer.interfaces)
-        logger.info('########## start neigbour active ###########')
         self.tracking_neighbour_alive.start()
     def run(self):
         logger.info('network layer listener begin to work...')
@@ -140,6 +143,8 @@ class NetworkLayerListener(threading.Thread):
                     # get ping response from it
                     logger.info('ping response. I know %s reachable', sip)
                     self.tracking_neighbour_alive.wakeup(dip, sip)
+            else:
+                logger.debug('recv msg!!\n%s', msg)
                     
                 
 
@@ -181,6 +186,7 @@ def calculate_shortest_path(src:int):
             ret.append((ip, netmask, prev_ip))
             logger.info('[2]add item into response msg\n \
                 %s, %s, %s', ip, netmask, prev_ip)
+
     logger.debug("calculation return value\n%s", ret)
     return ret
 
@@ -230,9 +236,6 @@ def main():
 
     network_layer_listener = NetworkLayerListener(network_layer)
     network_layer_listener.start()
-
-    tracking_direct_router_neighbour = TrackingDirectRouterNeighbour(network_layer)
-    tracking_direct_router_neighbour.start()
 
     init_route_table()
 
