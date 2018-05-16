@@ -1,4 +1,6 @@
 # 虚拟路由协议实现
+**目录**
+[toc]
 ## 项目介绍
 本次项目，我们实现了以下工作：
 1. 实现了自组织虚拟路由程序。每个运行的虚拟路由程序充当router和client的角色，能够向虚拟网络中其他路由器发送消息，并路由转发其他路由器的消息。
@@ -275,8 +277,10 @@ $ git clone https://github.com/WalkerYF/virtual-routing-demo
 $ cd virtual-routing-demo/
 ```
 运行测试样例
+``` shell
 cd test/ # 也可以cd test2/ 使用另一个测试样例
 ./test_rip.sh # 或者 ./test_odpf.sh 使用另一种路由选择协议 
+```
 ### 依赖
 我们的测试与源代码依赖着一些第三方的软件与库，因此初次运行也许不能成功。
 测试脚本的正常运行，依赖于终端管理程序tmux，在ubuntu下可以按以下指令安装
@@ -296,11 +300,13 @@ pip install pandas
 ### 测试方法
 在我们的测试过程中，主要使用了两种测试拓扑。对每一种拓扑，我们均使用了多种路由选择协议进行了测试，验证了我们实现的协议的正确性。同时，我们对每一个测试，均有相关的测试脚本以及测试视频，帮助其他想要测试本项目的人来复现。
 
-在test/test2/test*文件夹下，运行以下的脚本（依赖tmux）即可进行测试。
+在`test/test2/test*`文件夹下，运行以下的脚本（依赖tmux）即可进行测试。
+``` shell
 ./test_rip.sh # 可用于测试rip协议
 ./test_ospf.sh # 可用于测试ospf协议
 ./test_controller.sh # 可用于测试中心化路由，
 中心化路由对网络拓扑结构有要求，因此必须在test_controller文件夹下测试
+```
 ### test文件夹
 
 ![](https://images-cdn.shimo.im/iZz0KA2UXUUUJmxh/image.png!thumbnail)
