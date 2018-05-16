@@ -43,6 +43,11 @@ logger.debug("[controller] read all files\n %s ", format(json_files))
 V = len(json_files['filenames'])
 # graph 是用于求最短路的邻接矩阵
 graph = [[-1 for i in range(V)] for j in range(V)] # type: List[List[int]]
+def graph_reset():
+    for i in range(V):
+        for j in range(V):
+            graph[i][j] = -1
+
 class NetworkLayerListener(threading.Thread):
     def __init__(self, network_layer) -> None:
         threading.Thread.__init__(self)
@@ -140,6 +145,9 @@ def init_global_route_table(config_file: str, src : int) -> None:
     input:
         config_file: 储存有“所有route配置文件的文件名”文件名
     """
+    interface2index.clear()
+    index2interface.clear()
+    graph_reset()
     logger.debug("[spfa] init graph\n %s", format(graph))
     for filename in json_files['filenames']:
         f = open(CONFIG_ROOT + '/' + filename) #TODO:(YB) refactor. let it be path.resolve
@@ -167,6 +175,12 @@ def init_global_route_table(config_file: str, src : int) -> None:
             except KeyError:
                 logger.warning('no weight info in %s, %s defaut to 1', filename, interface)
             graph[node][inf_node] = weight
+    
+    # C not in graph
+    for i in range(V):
+        graph[2][i] = -1
+        graph[i][2] = -1
+
     logger.debug("[spfa] finished loading neighbour info into graph\n %s", format(graph))
     
 def ask_for_global_table():
@@ -203,7 +217,10 @@ def main():
 
     if is_controller:
         logger.debug("I am controller. not calculate until asked")
-        #init_global_route_table(GLOBAL_ROUTE_INFORMATIOIN_FILE)
+        #init_global_route_table(GLOBAL_ROUTE_INFORMATIOIN_FILE, 2)
+        #ret = calculate_shortest_path(2)
+        #for item in ret:
+            #route.my_route_table.update_item(*item)
         
     network_layer_listener = NetworkLayerListener(network_layer)
     network_layer_listener.start()
