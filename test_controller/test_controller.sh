@@ -45,36 +45,36 @@ tmux split-window -p 66 -t  "init":0.2
 tmux split-window -p 50 -t "init":0.5
 
 # 切换到指定目录并运行服务
-tmux send -t "init":0.0 "sleep 8 ; $PYTHON $SRC_FILE ${ROUTE_LIST[0]}" Enter
-tmux send -t "init":0.1 "sleep 8 ; $PYTHON $SRC_FILE ${ROUTE_LIST[1]}" Enter
+tmux send -t "init":0.0 "sleep 10 ; $PYTHON $SRC_FILE ${ROUTE_LIST[0]}" Enter
+tmux send -t "init":0.1 "sleep 10 ; $PYTHON $SRC_FILE ${ROUTE_LIST[1]}" Enter
 tmux send -t "init":0.2 "sleep 0 ; $PYTHON $SRC_FILE ${ROUTE_LIST[2]}" Enter
-tmux send -t "init":0.3 "sleep 8 ; $PYTHON $SRC_FILE ${ROUTE_LIST[3]}" Enter
-tmux send -t "init":0.4 "sleep 8 ; $PYTHON $SRC_FILE ${ROUTE_LIST[4]}" Enter
-tmux send -t "init":0.5 "sleep 8 ; $PYTHON $SRC_FILE ${ROUTE_LIST[5]}" Enter
-tmux send -t "init":0.6 "sleep 8 ; $PYTHON $SRC_FILE ${ROUTE_LIST[6]}" Enter
+tmux send -t "init":0.3 "sleep 10 ; $PYTHON $SRC_FILE ${ROUTE_LIST[3]}" Enter
+tmux send -t "init":0.4 "sleep 10 ; $PYTHON $SRC_FILE ${ROUTE_LIST[4]}" Enter
+tmux send -t "init":0.5 "sleep 10 ; $PYTHON $SRC_FILE ${ROUTE_LIST[5]}" Enter
+tmux send -t "init":0.6 "sleep 10 ; $PYTHON $SRC_FILE ${ROUTE_LIST[6]}" Enter
 
 # 给每一个路由器发送一个初始化运行脚本
 # 注意如果脚本只有一条命令的话不要在后面加分号;不然会出问题
 # 给路由器A发送初始化脚本
-tmux send -t "init":0.0 "debug start$COMMAND_FOR_ALL" Enter
+tmux send -t "init":0.0 "$COMMAND_FOR_ALL" Enter
 
 # 给路由器B发送初始化脚本
-tmux send -t "init":0.1 "debug start$COMMAND_FOR_ALL" Enter
+tmux send -t "init":0.1 "$COMMAND_FOR_ALL" Enter
 
 # 给路由器C发送初始化脚本
-tmux send -t "init":0.2 "debug start;debug stop$COMMAND_FOR_ALL" Enter
+tmux send -t "init":0.2 "$COMMAND_FOR_ALL" Enter
 
 # 给路由器D发送初始化脚本
-tmux send -t "init":0.3 "debug start$COMMAND_FOR_ALL" Enter
+tmux send -t "init":0.3 "$COMMAND_FOR_ALL" Enter
 
 # 给路由器E发送初始化脚本
-tmux send -t "init":0.4 "debug start$COMMAND_FOR_ALL" Enter
+tmux send -t "init":0.4 "$COMMAND_FOR_ALL" Enter
 
 # 给路由器F发送初始化脚本
-tmux send -t "init":0.5 "debug start$COMMAND_FOR_ALL" Enter
+tmux send -t "init":0.5 "$COMMAND_FOR_ALL" Enter
 
 # 给路由器G发送初始化脚本
-tmux send -t "init":0.6 "debug start$COMMAND_FOR_ALL" Enter
+tmux send -t "init":0.6 "$COMMAND_FOR_ALL" Enter
 
 
 
