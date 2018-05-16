@@ -20,16 +20,23 @@ class RouteTable():
         # 可能会出现net_mask这列误认为是字符串的情况，所以显式指定为int
         self.route_table[["net_mask"]] = self.route_table[["net_mask"]].astype(int)
     
+    def reset_route_table(self):
+        self.route_table = pd.DataFrame(data=[], columns=['dest_net','net_mask','dest_ip'])
+        self.init_local_link(self.local_link)
+        self.init_item(self.dest_net_mask_dest_ip_list)
+
     def init_local_link(self, local_ip_list):
         """ 传入[local_ip ]的列表  : [str] """
         for local_ip in local_ip_list:
             self.update_local_link(local_ip)
+        self.local_link = local_ip_list
 
     def init_item(self,dest_net_mask_dest_ip_list : Tuple[str, int, str]):
         """ 传入（dest_net, net_mask, dest_ip)元组的列表  : [(str, int, str)] """
         for dest_net,net_mask,dest_ip in dest_net_mask_dest_ip_list:
             self.update_item(dest_net, net_mask, dest_ip)
-    
+        self.dest_net_mask_dest_ip_list = dest_net_mask_dest_ip_list
+
     def __str__(self):
         return self.route_table.__str__()
     

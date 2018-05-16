@@ -3,14 +3,14 @@
 # 在test2文件夹下运行下运行
 ROOT=.
 # 使用的源代码的文件名
-FILE_NAME=$1
+FILE_NAME=ospf.py
 # 源代码路径
 SRC_ROOT=$ROOT/../src
 # 测试的配置文件路径
 TEST_ROOT=$ROOT
 
 # 下面放一个参数，这个参数代表的命令会让每一台路由器运行
-COMMAND_FOR_ALL=$2
+COMMAND_FOR_ALL=$1
 
 # 是否显示调试信息
 # start or srtp
@@ -53,19 +53,19 @@ tmux send -t "init":0.4 "sleep 0.8 ; $PYTHON $SRC_FILE ${ROUTE_LIST[4]}" Enter
 # 给每一个路由器发送一个初始化运行脚本
 # 注意如果脚本只有一条命令的话不要在后面加分号;不然会出问题
 # 给路由器A发送初始化脚本
-tmux send -t "init":0.0 "$COMMAND_FOR_ALL;you can add some" Enter
+tmux send -t "init":0.0 "debug start;sleep 10;debug stop" Enter
 
 # 给路由器B发送初始化脚本
-tmux send -t "init":0.1 "$COMMAND_FOR_ALL" Enter
+tmux send -t "init":0.1 "debug start;sleep 10;debug stop" Enter
 
 # 给路由器C发送初始化脚本
-tmux send -t "init":0.2 "$COMMAND_FOR_ALL" Enter
+tmux send -t "init":0.2 "debug start;sleep 10;debug stop" Enter
 
 # 给路由器D发送初始化脚本
-tmux send -t "init":0.3 "$COMMAND_FOR_ALL" Enter
+tmux send -t "init":0.3 "debug start;sleep 10;debug stop" Enter
 
 # 给路由器E发送初始化脚本
-tmux send -t "init":0.4 "$COMMAND_FOR_ALL" Enter
+tmux send -t "init":0.4 "debug start;sleep 10;debug stop" Enter
 
 # # 给路由器F发送初始化脚本
 # tmux send -t "init":0.5 "$COMMAND_FOR_ALL" Enter

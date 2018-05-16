@@ -5,7 +5,6 @@
 import os
 import json
 import sys
-import logging
 import traceback
 import time
 
@@ -13,15 +12,8 @@ from prompt_toolkit import prompt
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.contrib.completers import WordCompleter
+from include.logger import logger
 
-# 初始化日志
-logging.basicConfig(
-    # filename='../../log/client.{}.log'.format(__name__),
-    format='[%(asctime)s - %(name)s - %(levelname)s] : \n%(message)s\n',
-    # datefmt='%M:%S',
-)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
 # NOTICE:如果需要使用终端，将以下代码复制到对应脚本的if __name__ == '__main__':下，并且import上面的库
@@ -95,6 +87,12 @@ class Console():
                             logger.disabled = True
                     elif main_action == 'sleep':
                         time.sleep(int(user_args[1]))
+                    elif main_action == 'suspend':
+                        self.route.global_is_alive = 0
+                        print('logout!  status:{}'.format(self.route.global_is_alive))
+                    elif main_action == 'activate':
+                        self.route.global_is_alive = 1
+                        print('login!  status:{}'.format(self.route.global_is_alive))
                     elif main_action == 'quit':
                         os._exit(0)
             except IndexError:

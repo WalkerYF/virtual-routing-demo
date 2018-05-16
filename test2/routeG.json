@@ -1,6 +1,9 @@
 {
     "name": "G", 
     "index": 6,
+    "is_controller": false,
+    "controller_index": 2,
+    "controller_name": "C",
     "interfaces": [
         {
             "cost": 1,
@@ -13,7 +16,8 @@
             "counter_pip": "127.0.0.1",
             "counter_port":7001,
             "counter_index": 4,
-            "counter_name": "E"
+            "counter_name": "E",
+            "weight": 1
         }
     ]
 }

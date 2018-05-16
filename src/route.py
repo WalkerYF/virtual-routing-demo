@@ -19,7 +19,6 @@ import threading
 from include import rdt_socket
 import link
 import sys
-import logging
 import unittest
 import pdb
 import queue
@@ -28,23 +27,16 @@ import threading
 from route_table import RouteTable
 from include.utilities import IP_Package
 from include import shortestPath
+from include.logger import logger
 import time
-
-
-logging.basicConfig(
-    # filename='../../log/client.{}.log'.format(__name__),
-    format='[%(asctime)s - %(name)s - %(levelname)s] : \n%(message)s\n',
-    # datefmt='%M:%S',
-)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-# logger.setLevel(logging.INFO)
 
 # using Interface = Host;
 Interface = link.Host
 
 link_layer = link.DataLinkLayer()
 my_route_table = RouteTable()
+
+global_is_alive = 1
 
 # 注意! 下面的两个队列存放对象，而不是二进制数据
 # 用来存放rip协议的ip包
@@ -53,6 +45,8 @@ rip_recv_package = queue.Queue(0) # type: Queue[IP_Package]
 ospf_recv_package = queue.Queue(0) # type: Queue[IP_Package]
 # 用来存放cost协议的ip包
 cost_recv_package = queue.Queue(0) # type: Queue[IP_Package]
+# 用来放ping协议的ip包
+ping_recv_package = queue.Queue(0) # type: Queue[IP_Package]
 
 # 用来存储网络层需要向上传递的普通ip包
 route_recv_package = queue.Queue(0) # type: Queue[IP_Package]
@@ -88,7 +82,7 @@ class PkgForwardThread(threading.Thread):
                 logger.info('{} is unreachable. \nShow your route table by "show route table"'.format(ip_package.final_ip))
                 continue
             # DEBUG信息
-            logger.debug('ip pkg has been modified. now forwarding...')
+            logger.debug('ip pkg has been modified. now forwarding...\n modified package is below')
             logger.debug(ret_ip_package)
 
             # 发送IP包
@@ -124,21 +118,25 @@ class MonitorLinkLayer(threading.Thread):
             # 查看该包是否是发给本机的
             ip_package = IP_Package.bytes_package_to_object(recv_data)
             is_local = my_route_table.is_local_link(ip_package.final_ip)
-            if is_local:
-                # 网络层要了IP包，并交给了更上层的协议
-                if ip_package.protocol == 120:
-                    # RIP协议
-                    rip_recv_package.put(ip_package)
-                elif ip_package.protocol == 119:
-                    # OSPF协议
-                    ospf_recv_package.put(ip_package)
-                elif ip_package.protocol == 121:
-                    cost_recv_package.put(ip_package)
-                else :
-                    route_recv_package.put(ip_package)
-            else:
-                # 网络层修改ip包，要转发
-                route_send_package.put(ip_package)
+            is_alive = global_is_alive
+            if is_alive:
+                if is_local:
+                    # 网络层要了IP包，并交给了更上层的协议
+                    if ip_package.protocol == 120:
+                        # RIP协议
+                        rip_recv_package.put(ip_package)
+                    elif ip_package.protocol == 119:
+                        # OSPF协议
+                        ospf_recv_package.put(ip_package)
+                    elif ip_package.protocol == 121:
+                        cost_recv_package.put(ip_package)
+                    elif ip_package.protocol == 100:
+                        ping_recv_package.put(ip_package)
+                    else :
+                        route_recv_package.put(ip_package)
+                else:
+                    # 网络层修改ip包，要转发
+                    route_send_package.put(ip_package)
 
 my_package_forward_thread = PkgForwardThread()
 my_monitor_link_layer = MonitorLinkLayer()
@@ -194,13 +192,15 @@ class NetworkLayer():
             self.interfaces.append(new_interface)
         link_layer.host_register(self.interfaces)
 
-    def send(self, src_ip : str,  final_ip : str, ip_package_data : bytes):
+    def send(self, src_ip : str,  final_ip : str, ip_package_data : bytes, protocol=None):
         """ 只需要将这个包放到队列中即可，另一个线程负责队列中的包处理并发送出去 """
         # TODO:疑问：网络层的接口，是否需要提供源ip？
         # 我应该到了链路层才知道使用哪一个接口发送呀，才知道接口对应的IP呀！
         # 应用层应该只需要知道目的IP就好了，然后源ip在网络层中获取，子网掩码和目的ip由转发表设置
         # 这里ip包的子网掩码是目的网络的子网掩码，应用层是不知道的
         ip_pkg = IP_Package(src_ip, final_ip, final_ip, 0, ip_package_data)
+        if not protocol is None:
+            ip_pkg.protocol = protocol
         route_send_package.put(ip_pkg)
 
     def recv(self) -> Optional[IP_Package] :
@@ -230,6 +230,12 @@ class NetworkLayer():
             return None
         else:
             return cost_recv_package.get()
+
+    def recv_ping(self) -> Optional[IP_Package] :
+        """ 非阻塞式接受IP包(用于ping协议），如果没有收到，返回None，注意判断 """
+        if ping_recv_package.qsize() == 0:
+            return None
+        return ping_recv_package.get()
 
     def update_route_table(self):
         #TODO: here

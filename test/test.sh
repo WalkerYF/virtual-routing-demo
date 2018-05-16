@@ -53,7 +53,7 @@ tmux send -t "init":0.4 "sleep 0.8 ; $PYTHON $SRC_FILE ${ROUTE_LIST[4]}" Enter
 # 给每一个路由器发送一个初始化运行脚本
 # 注意如果脚本只有一条命令的话不要在后面加分号;不然会出问题
 # 给路由器A发送初始化脚本
-tmux send -t "init":0.0 "$COMMAND_FOR_ALL;you can add some" Enter
+tmux send -t "init":0.0 "$COMMAND_FOR_ALL" Enter
 
 # 给路由器B发送初始化脚本
 tmux send -t "init":0.1 "$COMMAND_FOR_ALL" Enter

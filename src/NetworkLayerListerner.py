@@ -1,15 +1,6 @@
 import threading
 import time
-import logging
-
-logging.basicConfig(
-    # filename='../../log/client.{}.log'.format(__name__),
-    format='[%(asctime)s - %(name)s - %(levelname)s] : \n%(message)s\n',
-    # datefmt='%M:%S',
-)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
+from include.logger import logger
 class NetworkLayerListener(threading.Thread):
     """
     非阻塞地询问网络层是否有数据到达。若有，则向终端输出数据
