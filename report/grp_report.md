@@ -1,4 +1,12 @@
-# 虚拟路由协议实现
+# 计算机网络课程项目二——虚拟路由
+
+[TOC]
+
+| 组员一 | 王永锋 | 16337237 | 评分：100 |
+| ------ | ------ | -------- | --------- |
+| 组员二 | 颜彬   | 16337269 | 评分：100 |
+| 组员三 | 李新锐 | 15323032 | 评分：100 |
+
 ## 项目介绍
 本次项目，我们实现了以下工作：
 1. 实现了自组织虚拟路由程序。每个运行的虚拟路由程序充当router和client的角色，能够向虚拟网络中其他路由器发送消息，并路由转发其他路由器的消息。
@@ -19,7 +27,7 @@
 3. 路由协议：从网络层接收路由协议报文，根据其中反映的当前网络信息，对路由表进行构建和维护。
 
 整体而言，我们实现了链路层，网络层，并在网络层提供的接口上实现了路由选择协议。
-![](figure/replacement.png)
+![](figure/struct.png)
 
 ### 虚拟链路层的设计
 我们设计的虚拟链路层模块为网络层提供了直接相邻的Interface之间的数据传输的接口。从接口和功能上看，它与实际的链路层是相同的。
@@ -358,5 +366,245 @@ OSPF是一个使用SPFA算法，通过全局拓扑信息计算得到最优的路
 ### 测试项目四：中心化路由
 中心化路由让每一台路由器不再需要计算转发表，相反，每一台路由器只需要定时向中心路由请求自己的路由表即可。对该实现，主要测试了以下这一个场景。
 【路由器刚开机】每一个路由器从中心化路由器得到转发表，从而实现路由器间的连同。
+
+**见视频**
+
+/ppt+demo_video/中心化路由.mp4
+
 ## 项目管理记录
-TODO:git commit 表格？？
+
+我们使用了Git进行版本控制，项目主页是：https://github.com/WalkerYF/virtual-routing-demo。
+
+以下是每一次Commit的记录，共231条。
+
+| Hash     | Author   | Time           | Comment                                                      |
+| -------- | -------- | -------------- | ------------------------------------------------------------ |
+| b7bc015  | 李新锐   | 05-16 19:40:53 | 修改了RIP有关表述                                            |
+| 8488060  | YanB25   | 05-16 16:58:33 | 还差两个TODO 第一个是RIP部分 第二个controller的录屏          |
+| 5310754  | YanB25   | 05-16 15:55:19 | more on group report                                         |
+| 5475ff4  | YanB25   | 05-16 15:33:35 | init report                                                  |
+| dcdee13  | 李新锐   | 05-16 11:51:18 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 7ab8c23  | 李新锐   | 05-16 11:51:06 | 添加了个人报告PDF和一张实验报告中的图片                      |
+| aac86a8  | walker   | 05-16 11:29:31 | 解决了一处无关紧要的冲突                                     |
+| 836674e  | 李新锐   | 05-16 11:26:39 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| fc6b777  | 李新锐   | 05-16 11:25:07 | 添加个人报告，删除rip中一些多余的代码                        |
+| a58b9e5  | YanB25   | 05-16 11:24:58 | [fix] fix bugs in controller.py  in   calculating shortest path I forget to reset anything before runing spfa. now   it seems to work! =) |
+| 28b26c0  | walker   | 05-16 11:06:26 | 解决了一处在测试脚本中的冲突                                 |
+| f7f217e  | walker   | 05-16 11:04:42 | 将logger.py修改成info                                        |
+| 1baef68  | YanB25   | 05-16 11:03:00 | [fix] fix tiny bug in controller                             |
+| 8cc4b8d  | walker   | 05-16 01:46:02 | 在test2样例中增加了weight                                    |
+| 6fe47e7  | walker   | 05-16 01:45:37 | 将ospf中设置为A关闭调试信息而其他显示                        |
+| eec10df  | walker   | 05-16 01:45:05 | 统一logger的设置，修改了rip模块中的logger位置。              |
+| 9529040  | walker   | 05-16 01:44:37 | 在console中增加了屏蔽一切数据包的接口，用以测试下线          |
+| 7a7547e  | YanB25   | 05-15 20:06:55 | fix conflicts test2/test.sh. I handle it. Merge branch 'master' of   github.com:WalkerYF/virtual-routing-demo |
+| 96e60f1  | YanB25   | 05-15 20:06:03 | finish ospf's `logout logic` totally. finish broadcast. Squashed commit   of the following: |
+| 41f8883  | walker   | 05-15 19:39:02 | 更新tree.pkt                                                 |
+| 73ecdf5  | walker   | 05-15 19:38:33 | 更新了controller中的readme.md                                |
+| c3d406d  | walker   | 05-15 19:38:10 | 更新了测试样例的一些相关图片与文件                           |
+| 616c587  | walker   | 05-15 19:36:29 | 更新了测试样例里的一处错误                                   |
+| 8c8af15  | walker   | 05-15 19:26:09 | 更新了每个测试样例的测试脚本                                 |
+| 681caea  | 李新锐   | 05-15 03:00:10 | 修改了print dv时输出的path的格式，使得与之前录制时相同（都不包含出发节点） |
+| b206a38  | 李新锐   | 05-15 02:25:49 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 656d0d3  | 李新锐   | 05-15 02:17:10 | [BIG CHANGE]  [RIP] now support   runtime cost changing      |
+| 6dce77b  | walker   | 05-15 02:15:33 | edit test_controller.md                                      |
+| 352519c  | walker   | 05-15 02:09:31 | 增加了个人报告                                               |
+| 56f3ed6  | walker   | 05-15 01:52:42 | 增加了ospf和controller的测试脚本                             |
+| 64717ed  | walker   | 05-15 01:44:15 | 进行了一波测试，增加了一些视频                               |
+| 8e90e47  | walker   | 05-15 01:11:09 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| c73a683  | 李新锐   | 05-14 22:59:29 | Fixed Strange Git Merge Working on cost change protocol      |
+| 9a262c7  | walker   | 05-14 22:09:23 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 7965ac4  | 李新锐   | 05-14 21:31:49 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 556e4d8  | 李新锐   | 05-14 21:27:47 | rip现在可以正确地处理offline啦                               |
+| 8c5947d  | walker   | 05-14 20:29:50 | 在test2下增加了一个测试脚本                                  |
+| 0400ea1  | walker   | 05-14 17:01:37 | 优化了console的测试代码                                      |
+| 6cb8a8f  | walker   | 05-14 16:53:32 | 更新了测试脚本                                               |
+| 0f4417e  | walker   | 05-14 16:53:11 | [fix][by yb]修复了在ospf中的一个bug                          |
+| 8fb3071  | walker   | 05-14 16:11:37 | rip测试删掉步骤三                                            |
+| e4a394a  | walker   | 05-14 16:11:16 | 修复了测试脚本中结尾出现\r的问题                             |
+| 46a6013  | walker   | 05-14 15:56:16 | 增加了RIP的测试报告框架，并且更新了test样例的测试脚本        |
+| 04b0d99  | walker   | 05-14 15:15:03 | rip.py中，将rip协议的启动修改为console中的接口：需要在控制台中手动启动（当然可以在启动脚本中初始化好） |
+| d1ace65  | walker   | 05-14 14:56:28 | 增加一个参数，该参数内命令可让每一个路由器运行               |
+| d2738ce  | walker   | 05-14 14:55:57 | 在rip.py里面的终端增加了延时的接口                           |
+| 750571   | walker   | 05-14 14:32:42 | 删除了所有history.txt，让gitignore起作用                     |
+| e4000b7  | walker   | 05-14 14:30:29 | 编辑了gitignore                                              |
+| 29846ac  | walker   | 05-14 14:28:37 | 修改了gitignore不更新所有目录的命令行历史记录文件：history.txt |
+| 96fb5df  | walker   | 05-14 14:26:46 | 修改了controller的测试脚本                                   |
+| fa2d1ea  | walker   | 05-14 14:26:27 | 增加了设置调试信息显示的接口                                 |
+| 3a6b84f  | walker   | 05-14 14:26:03 | 1. 更正了终端的帮助信息和补全列表 2. 将终端分析命令部分，增加使用分号;拆分语句的功能 3. 终端增加接口：打开/关闭调试信息输出 |
+| c2330e8  | walker   | 05-14 14:24:18 | 对一个捕获所有异常的语句，下面添加了输出错误信号的实现       |
+| b416780  | walker   | 05-14 14:23:38 | 将controler.py读取配置文件的路径进行修改 默认：在test文件夹下读取配置文件 |
+| d6a2564  | walker   | 05-14 12:38:48 | 在test2下增加了测试脚本                                      |
+| a1fe72d  | walker   | 05-14 12:25:00 | typo                                                         |
+| 49f8074  | walker   | 05-14 12:24:46 | 在test2下增加了all_route.json                                |
+| 7606b2e  | walker   | 05-14 12:15:10 | 更新了test下的测试脚本                                       |
+| 6e2d2e4  | walker   | 05-14 12:11:17 | 修改了测试脚本                                               |
+| bc94809  | walker   | 05-14 11:43:00 | 补充了在test.sh处的一处冲突                                  |
+| b2f6d06  | walker   | 05-14 11:41:50 | 修改了在test.sh处的一处冲突                                  |
+| 5f13ea5  | walker   | 05-14 11:40:56 | 补充了合并后的修改                                           |
+| 4a68c03  | walker   | 05-14 11:38:17 | 在test下的测试脚本下增加了初始化路由器脚本                   |
+| 7cf2813  | 李新锐   | 05-14 11:25:55 | merge chomd +x ./test2.sh                                    |
+| f9a6780  | 李新锐   | 05-14 11:20:35 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| ebb1fa4  | walker   | 05-14 11:17:35 | 在test中的test测试脚本，可以退出后自动kill-sesstion          |
+| 012fee3  | 李新锐   | 05-14 11:16:39 | [Fixed] list.insert 没有返回值，这一点没搞清楚错了 改变了test的布局 |
+| 5f53f96  | walker   | 05-14 11:16:38 | test中的测试脚本，可以在路由器中运行简单的命令集合           |
+| 78b7e34  | walker   | 05-14 11:16:04 | 给controller的测试样例增加了一个端系统                       |
+| 4a95563  | walker   | 05-14 11:15:29 | 1. 给console提供了延时接口 2. 使用分号隔开读取每一条指令，实现一次运行多条指令，方便调试 |
+| 2926a6f  | walker   | 05-14 09:58:06 | merge的时候解决了一处位于hostory.txt的无关紧要的冲突         |
+| e11b07a  | 李新锐   | 05-14 08:07:50 | 添加了路由器离线的实现 路由表删除时找不到某一项不会打印错误信息了 链路层send时检查接口状态 |
+| b18ef9a  | YanB25   | 05-14 03:09:56 | finish!! 终于可以睡觉了哈哈哈哈哈哈哈 还差一点东西见TODO - controller.py: finish (nearly) all   logic. But controller itself is can     not work as a route by now. I will fix it tomorrow. -   history.txt:trivial |
+| 09058aa  | YanB25   | 05-14 02:48:27 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 9752230  | YanB25   | 05-14 02:48:02 | [temp] successfully in generate route table for certain node |
+| 8c0b694  | walker   | 05-14 02:41:52 | 移动test.sh                                                  |
+| d5d7bf9  | walker   | 05-14 02:41:44 | 移动test.sh到test_controller中                               |
+| 4f5c561  | walker   | 05-14 02:39:22 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 4992811  | walker   | 05-14 02:39:15 | 增加了test.sh                                                |
+| ead189c  | walker   | 05-14 02:39:00 | 更正了console的一些问题                                      |
+| 7816862  | YanB25   | 05-14 02:27:40 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| c8e8951  | YanB25   | 05-14 02:27:11 | [tmp] able to sent first request msg to router               |
+| 83c86d6  | walker   | 05-14 02:20:32 | 增加了一键测试脚本，依赖tmux                                 |
+| 04f56da  | walker   | 05-14 02:20:10 | 修改了console.py，增加了是否显示调试信息的开关               |
+| 8d3b39c  | walker   | 05-14 00:48:41 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 5775987  | walker   | 05-14 00:48:34 | 解决了一处冲突：console.py有一行注释冲突了                   |
+| d6178fa  | YanB25   | 05-14 00:47:56 | solve conflict and merge                                     |
+| a8c9103  | walker   | 05-14 00:46:15 | 更新了帮助信息                                               |
+| 142647c  | YanB25   | 05-13 23:47:34 | [fix] fix tiny bug that may (or may not) cause UndefinedException -   ospf.py: let class `NetworkLayerListener` get networkLayer parameter |
+| 77181dd  | YanB25   | 05-13 23:19:20 | [fix] important. some typo in console.py                     |
+| 4000910  | YanB25   | 05-13 23:15:44 | Squashed commit of the following:                            |
+| 116950f  | YanB25   | 05-13 22:19:30 | Squashed commit of the following:                            |
+| 65c99ff  | walker   | 05-13 20:47:49 | 解决了一处冲突，rip协议收到包不会放回队列中（因为一定是rip协议对应的包） |
+| 953e984  | walker   | 05-13 20:46:38 | 解决了几处冲突                                               |
+| 9381dd9  | walker   | 05-13 20:45:03 | 在网络层中实现了多路分解，不同的协议使用不同的队列来recv 1. rip协议使用recv_rip() 2.   opsf协议使用recv_ospf() 3. 用户自己发送和接受的就用recv() |
+| 8b313c6  | walker   | 05-13 20:44:07 | 将rip协议获取数据包的函数改名为recv_rip()                    |
+| c0d5022  | walker   | 05-13 20:43:41 | 链路层的发送逻辑：只需通过发送ip所在子网指明端口就能够发送。 既可使用出端口ip也可使用下一跳ip |
+| 3fe3686  | 李新锐   | 05-13 20:29:16 | 测试A发送向B成功，但删除项没有成功                           |
+| dd12e0a  | 李新锐   | 05-13 19:47:09 | 可能写好了？                                                 |
+| 076eaa8  | 李新锐   | 05-13 19:22:51 | push                                                         |
+| a71e5ad  | walker   | 05-13 17:20:51 | 将最长匹配的逻辑进行修改                                     |
+| 3f72bc9  | walker   | 05-13 15:59:51 | merge from wyf-dev                                           |
+| 3194bab  | walker   | 05-13 15:58:36 | console.py 下少import了一个库，已修复                        |
+| e61c02a  | walker   | 05-13 15:54:40 | 修了一些console.py 在pylint下的报错                          |
+| 57f2299  | walker   | 05-13 15:30:07 | Merge branch 'wyf-dev'                                       |
+| 9aeb5da  | walker   | 05-13 15:28:36 | 在 console.py中增加了一部分注释                              |
+| 529c342  | 李新锐   | 05-13 15:21:10 | RIP协议目前可以找到路由器之间的最短路了                      |
+| d3b0a9e  | walker   | 05-13 15:18:06 | 以一个视频，展示路由器的实现                                 |
+| 2.52E+11 | walker   | 05-13 15:01:03 | Merge branch 'wyf-dev'                                       |
+| 08fd6ee  | walker   | 05-13 15:00:02 | 捕获异常并打印traceback信息，提高鲁棒性，方便测试            |
+| efce69d  | YanB25   | 05-13 14:57:13 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 1665476  | YanB25   | 05-13 14:56:31 | - add .pylintrc - modify test/route*.json and try searching shortest path   Squashed commit of the following: |
+| 6de5b09  | walker   | 05-13 14:48:58 | console中增加新的接口：从路由表中删除项                      |
+| 3b95691  | walker   | 05-13 14:48:36 | 转发表中，在删除项的时候，增加了对项不存在的处理             |
+| f59d08d  | walker   | 05-13 14:32:32 | merge from master                                            |
+| 761172b  | walker   | 05-13 14:30:28 | 该样例端口写错了                                             |
+| df8dbbc  | walker   | 05-13 14:30:16 | 处理了IndexError异常，并改进了参数的解析，提高鲁棒性         |
+| b2a6765  | walker   | 05-13 14:29:25 | route.py:解决了在运行时CPU占用率 率过高的问题                |
+| 8e54005  | 李新锐   | 05-13 14:15:27 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 4fd9f89  | 李新锐   | 05-13 14:15:17 | link layer logging change                                    |
+| e85a321  | walker   | 05-13 14:07:38 | 增加了控制台的退出：按q退出                                  |
+| 46e0ed8  | YanB25   | 05-13 13:56:16 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 4fc6a13  | YanB25   | 05-13 13:53:36 | add .pylint to vscode                                        |
+| 8782558  | walker   | 05-13 13:41:05 | 增加了vscode的工作区设置，notice会高亮                       |
+| 892313b  | 李新锐   | 05-13 13:34:41 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 3202533  | 李新锐   | 05-13 13:34:30 | recv -> Optional[IP_package]                                 |
+| 414a8f5  | walker   | 05-13 13:24:10 | 在第二个测试样例中增加了cost和counter_name两项               |
+| 78b7058  | 李新锐   | 05-13 12:16:56 | 修改NetworkLayer.recv的返回类型为IP_Package                  |
+| 0309ce5  | 李新锐   | 05-13 12:15:31 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| f190681  | 李新锐   | 05-13 12:15:16 | **link layer API的改变**：Host类要求提供counter_name，link_cost   interfaces变为Route类的成员而不仅是局部变量。 |
+| 695193e  | walker   | 05-13 11:36:23 | 更新了测试样例2的图（之前有一项打错了）                      |
+| 69157b3  | walker   | 05-13 11:34:02 | 更正了console.py，路由器名的显示                             |
+| 4113250  | walker   | 05-13 11:29:50 | 刚刚那一发commit忘记说，还增加了console.py 实现了命令补全，历史命令记录，方便调试用 |
+| 996a648  | walker   | 05-13 11:28:56 | 将网络层的顶层recv函数改为非阻塞式。如果没有包则返回None     |
+| b277f47  | YanB25   | 05-13 11:26:01 | temporary try to let route table work                        |
+| 4a48d90  | walker   | 05-13 09:41:11 | 增加了一个测试样例                                           |
+| aaff89e  | YanB25   | 05-13 02:43:42 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| a935fc8  | YanB25   | 05-13 02:42:43 | Squashed commit of the following:                            |
+| 30c176f  | walker   | 05-13 02:28:54 | 对样例2进行了一些补充说明                                    |
+| a5ea46c  | walker   | 05-13 02:27:40 | 解决了在一些情况get_dest_ip返回None后无法处理的情况          |
+| bd9fa1d  | walker   | 05-13 02:26:59 | 测试文件中少了int函数，使得传入的参数变成了字符串，出现错误  |
+| d51bb2c  | walker   | 05-13 01:53:49 | 显示类终端界面                                               |
+| dffac77  | walker   | 05-13 01:53:26 | 增加了一个测试样例                                           |
+| e440c3c  | YanB25   | 05-12 22:21:58 | wrongly fix a conflit. now convert                           |
+| 11c0ce2  | YanB25   | 05-12 22:19:01 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 44f02dc  | YanB25   | 05-12 22:16:46 | fix typo objdect to object                                   |
+| 0663a2f  | walker   | 05-12 22:07:35 | 修复了若干bug 增加了路由无法到达的提示信息                   |
+| d86a3f8  | walker   | 05-12 21:10:19 | 更新了route中的send参数                                      |
+| b97ca55  | walker   | 05-12 21:09:13 | 更新了转发表中初始化本地ip的函数的形参列表（init_local_link) |
+| e8a4596  | walker   | 05-12 20:36:33 | route_table.py 修改了一个接口 get_dest_ip()只接受一个ip，不需要子网掩码 通过最长匹配，在转发表中找到对应的项返回 |
+| ca31cd9  | walker   | 05-12 18:38:28 | add ospf.py                                                  |
+| e89c1c1  | walker   | 05-12 17:46:28 | 将route 改名为NetLayer                                       |
+| 5cb4109  | walker   | 05-12 17:38:59 | 修改了日志登记，并注释掉了link.py中的一条日志输出，该日志输出过多，且无限循环无法停止 |
+| d712d66  | walker   | 05-12 17:28:22 | 1. 将原来的监听链路层并转发线程的职能较少为：不断地从队列中去包然后通过转发 2.   增加一个线程，用于监听链路层，并将从链路层获得的包分类，如果是发往本机，就往上层传递，否则放入发送队列中 3.   增加了两个队列，一个是用于发送，另一个是发往上层协议的包，等待上层协议读取 |
+| 55f7aa3  | walker   | 05-12 16:52:24 | add route BCD                                                |
+| 682b42c  | walker   | 05-12 16:24:42 | 对route.py做了一些不改变功能的改动。 将初始化路由表的过程写在了一个子函数中 将初始化接口的过程也写在了另一个子函数中   让route的初始化函数好看些 |
+| d57af6f  | walker   | 05-12 15:40:49 | 在链路层里面增加了两个函数，用来显示链路层的状态             |
+| 7acd6b9  | walker   | 05-12 15:15:20 | 在link.md中增加了一些问题                                    |
+| cb92d4c  | wangyf   | 05-12 12:43:58 | 修改了一条注释                                               |
+| 231352c  | wangyf   | 05-12 12:43:34 | 关于转发表的实现有缺陷，不过接口不需要变就可以修改，详见注释文档 |
+| c1c2977  | wangyf   | 05-12 12:30:09 | 增加了转发的测试截图                                         |
+| d6f1b93  | wangyf   | 05-12 12:29:54 | 1. 修改了link.py：寻host的逻辑改为使用dest_ip找到对应host进行发送 2. route.py:修改test_send |
+| 8c1a715  | wangyf   | 05-12 12:16:34 | 增加了路由监听转发线程 两台路由器之间能够互相发送   转发出现了问题，问题可能是链路层，我猜测是由于链路层使用的是src_ip进行发送而不是dest_ip |
+| ce9f257  | wangyf   | 05-12 12:15:07 | 链路层队列中的元素应为二进制对象，已修复                     |
+| b1cd338  | wangyf   | 05-12 12:13:25 | 增加B路由器配置文件                                          |
+| 4df8cbb  | wangyf   | 05-12 12:13:05 | 对IP包，print的时候增加输出长度一项                          |
+| e04f8b1  | wangyf   | 05-12 12:12:46 | 转发表中，获取下一条ip的语句处理了表中找不到的情况           |
+| 690e9e4  | wangyf   | 05-12 11:04:02 | route_table.py 修改检测本地链路的逻辑                        |
+| 449300d  | wangyf   | 05-12 10:59:17 | 转发表增加初始化项的功能，给出一个所有项的列表，自动将这个列表的元素更新进表格中 |
+| fc2d90a  | wangyf   | 05-12 10:37:52 | 更新了转发表的接口，可以不使用文件，直接初始化空转发表       |
+| b549f25  | wangyf   | 05-12 10:21:42 | 增加了用于测试转发表的csv                                    |
+| 065c552  | wangyf   | 05-12 10:17:07 | 增加了转发表的实现                                           |
+| f0f8eac  | walker   | 05-12 02:46:34 | 增加了文档说明，并且增加了一些todo，发现了一些小问题         |
+| 0e1d575  | YanB25   | 05-12 00:18:28 | not finished route.py. keep going. temporary save            |
+| 03c33ec  | YanB25   | 05-11 22:55:19 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| b38719b  | YanB25   | 05-11 22:54:28 | tmporary add routing table. but not finished. see TODO in route.py. add   some infomation in topo.json and routeA.json typically the counter_index |
+| ea56ea0  | walker   | 05-11 21:50:33 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 031734a  | walker   | 05-11 21:50:18 | add final_ip in IP_Package                                   |
+| 9f89bd6  | YanB25   | 05-11 21:25:06 | fix typo Merge branch 'master' of   github.com:WalkerYF/virtual-routing-demo |
+| aa00d69  | YanB25   | 05-11 21:23:30 | temp                                                         |
+| e484eb6  | 李新锐   | 05-11 21:22:42 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 210b13c  | walker   | 05-11 21:20:54 | 在route.md中增加了关于路由模块实现的说明                     |
+| 5846071  | 李新锐   | 05-11 21:19:40 | Typo                                                         |
+| aaa49be  | walker   | 05-11 21:04:41 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 6f846a3  | walker   | 05-11 21:04:29 | edit link.md                                                 |
+| d29bd2d  | YanB25   | 05-11 20:52:30 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| ab8c5ee  | YanB25   | 05-11 20:52:09 | tmporary write route.py                                      |
+| ceece92  | 李新锐   | 05-11 20:50:15 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 2e473f2  | 李新锐   | 05-11 20:49:50 | 修改了链路层接口以符合文档要求                               |
+| 2dc7a07  | YanB25   | 05-11 20:32:25 | Squashed commit of the following:                            |
+| 163c02b  | walker   | 05-11 20:12:44 | add net_mask in IP_Package                                   |
+| c94c2c5  | 李新锐   | 05-11 19:34:48 | solve conflict                                               |
+| e3a41ec  | 李新锐   | 05-11 19:24:16 | Successfully separate link layer to distirbuted processes    |
+| 30d3e10  | walker   | 05-11 18:56:11 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 354ae95  | walker   | 05-11 18:55:58 | merge utilities.py                                           |
+| 2eecab0  | YanB25   | 05-11 18:55:07 | [fix] bug in spfa. now fix.                                  |
+| 4f90163  | walker   | 05-11 18:54:28 | 实现了IP package相关的工具函数                               |
+| 605fb03  | YanB25   | 05-11 18:22:54 | combine dij into route. not really finished Squashed commit of the   following: |
+| ed7624b  | walker   | 05-11 17:43:47 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| c500fed  | walker   | 05-11 17:43:38 | add implemention of func"str_ip_to_bytes"                    |
+| 3a5976b  | YanB25   | 05-11 17:41:08 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| bd5e084  | YanB25   | 05-11 17:40:33 | mov `utilitties.py` into subdirectory `include/`             |
+| 681fa4c  | walker   | 05-11 17:37:05 | add bytes_ip_to_str function in utilities.py                 |
+| 43f4f7a  | walker   | 05-11 17:34:25 | merge                                                        |
+| bf5236d  | walker   | 05-11 17:33:30 | add IP_package class in utilities.py                         |
+| 38b8731  | YanB25   | 05-11 17:20:10 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 575ce68  | YanB25   | 05-11 17:17:56 | [fix] enable truly "subnet" feature - link.py: let   getSubnetPrefix be a member function in Host - link.py: let member function   `send` in DataLinkLayer really calculate     prefix - utilities: add function get_subnet |
+| 2f03dab  | walker   | 05-11 17:05:25 | add link.md                                                  |
+| 2e62a1f  | 李新锐   | 05-11 16:43:29 | In process link layer OK                                     |
+| 5eacee7  | 李新锐   | 05-11 16:23:34 | misc fix                                                     |
+| 7d8209e  | YanB25   | 05-11 16:12:35 | tmp                                                          |
+| 2225137  | YanB25   | 05-11 13:23:11 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 1282fa6  | YanB25   | 05-11 13:22:29 | fix bugs                                                     |
+| e34a350  | walker   | 05-11 12:52:56 | t push Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 248479c  | walker   | 05-11 12:51:11 | add class datalinklayer                                      |
+| 44dcf3a  | walker   | 05-11 12:14:14 | 增加了utilities.py 使用其中获取ip的函数                      |
+| 70c5593  | YanB25   | 05-11 12:13:19 | no need for link file. we don't use live share anymore       |
+| 6a5b876  | YanB25   | 05-11 12:12:15 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 13af764  | YanB25   | 05-11 12:12:01 | finish shortest path                                         |
+| e4cb384  | walker   | 05-11 10:59:06 | add next_hop_ip in function:data_link_layer                  |
+| 79c1497  | walker   | 05-11 10:57:47 | Merge branch 'master' of github.com:WalkerYF/virtual-routing-demo |
+| 72ce928  | walker   | 05-11 10:57:34 | add data_link_layer function                                 |
+| 1f834de  | YanB25   | 05-11 10:29:21 | move rdt_socket from p2p pj                                  |
+| fc5a07d  | walker   | 05-11 10:14:08 | add route.py and topo.json                                   |
+| 655722c  | 李新锐   | 05-11 09:25:19 | what                                                         |
+| 14c773a  | 李新锐   | 05-11 09:24:24 | try push                                                     |
+| a9c7a2e  | YanB25   | 05-11 09:21:47 | ignore `/ignore` in git                                      |
+| 4735edb  | YanB25   | 05-11 09:12:27 | add invite link                                              |
+| 881f887  | WalkerYF | 05-11 08:49:03 | Initial commit                                               |
